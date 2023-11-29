@@ -1,0 +1,8 @@
+{
+  "program": "fzs.p4",
+  "language": "p4-16",
+  "targets": {
+    "compile-bmv2": {
+    }
+  }
+}
