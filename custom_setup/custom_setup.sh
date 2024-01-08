@@ -5,12 +5,15 @@
 # Use the IP to log in with VSCode - makes life easier. Copy your public key in ~/.ssh/authorized_keys to log in without
 # having to use password.
 
-# install mininet, p4 and all dependencies
+# Install mininet, p4 and all dependencies
+# Read more here: https://github.com/jafingerhut/p4-guide/blob/master/bin/README-install-troubleshooting.md
 git clone https://github.com/jafingerhut/p4-guide
 # ./p4-guide/bin/install-p4dev-v5.sh |& tee log.txt # takes very little time and space but less stable
 ./p4-guide/bin/install-p4dev-v6.sh |& tee log.txt # large time and space requirement but is more stable 
 
-# install p4-utils (dependencies were already installed in previous step)
+# Install p4-utils (dependencies were already installed in previous step)
+# Read more here: https://github.com/nsg-ethz/p4-utils#manual-installation
+# NOTE: Don't delete the p4-utils folder after installing
 git clone https://github.com/nsg-ethz/p4-utils.git
 cd p4-utils
 sudo ./install.sh
