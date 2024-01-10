@@ -65,7 +65,7 @@ bind_layers(CEther, UNIC, type=TYPE_UNIC)
 
 def deparser(pkt):
     """
-    Takes an arbitrary pkt and deparses 
+    Takes an arbitrary packet and deparses
     it to fit the CEther frame.
     """
     raw = bytes(pkt)
