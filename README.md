@@ -46,3 +46,8 @@ sudo ./install.sh
 ### Step 4: Setup VSCode Server (Optional)
 
 I recommend using VSCode's remote development plugin to make it more convenient to work in the VM. Instructions can easily be Googled.
+
+
+## Usage
+
+Check the `src/` folder for more usage instructions.

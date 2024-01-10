@@ -38,6 +38,8 @@ class BARC(Packet):
 class UNIC(Packet):
     """
     Unicast headers
+
+    TODO
     """
 
     name = "UNICPacket"
@@ -57,5 +59,9 @@ bind_layers(CEther, UNIC, type=TYPE_UNIC)
 
 
 def deparser(pkt):
+    """
+    Takes an arbitrary pkt and deparses 
+    it to fit the CEther frame.
+    """
     raw = bytes(pkt)
     return CEther(raw)
