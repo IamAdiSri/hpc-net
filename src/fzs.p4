@@ -56,28 +56,39 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
     bit<9> ingressPort = standard_metadata.ingress_port;
 
     action barc() { // barc action
+        addr_t temp = hdr.ethernet.dstAddr;
+        hdr.ethernet.dstAddr = hdr.ethernet.srcAddr;
+        hdr.ethernet.srcAddr = temp;
+        // hdr.ethernet.etherType = TYPE_UNIC;
+        hdr.barc.S = BARC_P;
+        hdr.barc.BI.f0 = RCK_ID;
+        standard_metadata.egress_spec = ingressPort;
 
-        // load switch address
-        self.read(self_0, (bit<32>) 0);
-        self.read(self_1, (bit<32>) 1);
-        self.read(self_2, (bit<32>) 2);
+        // // load switch address
+        // self.read(self_0, (bit<32>) 0);
+        // self.read(self_1, (bit<32>) 1);
+        // self.read(self_2, (bit<32>) 2);
 
-        if (hdr.barc.S == BARC_I) {
-            // todo: error check
-            if (self_0 == 0b00000000) { // address hasn't been set
-                self_0 = R_ID;
-                standard_metadata.egress_spec = ingressPort;
-            } 
-            else { // todo
-                hdr.barc.subtype = 0xAA;
-                standard_metadata.egress_spec = ingressPort;
-            }
-        } 
-        // else if (hdr.barc.S == BARC_P) {} // todo
+        // if (hdr.barc.S == BARC_I) {
+        //     // todo: error check
+        //     if (self_0 == 0b00000000) { // address hasn't been set
+        //         self_0 = R_ID;
+        //         // hdr.
+        //         standard_metadata.egress_spec = ingressPort;
+        //     } 
+        //     else { // todo
+        //         // hdr.barc.subtype = 0xAA;
+        //         standard_metadata.egress_spec = ingressPort;
+        //     }
+        // } 
+        // // else if (hdr.barc.S == BARC_P) {} // todo
 
-        self.write((bit<32>) 0, self_0);
-        self.write((bit<32>) 1, self_1);
-        self.write((bit<32>) 2, self_2);
+        // // update switch address
+        // // self.write((bit<32>) 0, self_0);
+        // // self.write((bit<32>) 1, self_1);
+        // // self.write((bit<32>) 2, self_2);
+
+        return;
     }
     
     apply {
@@ -85,30 +96,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
             // process BARC frame
             barc();
 
-        } 
-        // else if (hdr.ethernet.etherType == TYPE_UNIC) {
-        //     // process Unicast frame
-
-        //     if (hdr.ethernet.f0 == BARC_DA) {
-        //         barc();
-        //     }
-            
-        //     switchtype = hdr.barc.switchType;    //example switch type
-        //     loc1 = hdr.barc.loc1;                //example switch location
-        //     loc2 = hdr.barc.loc2;                //example switch location
-
-        //     if (switchtype == typeSS) {
-        //     spine();            
-        //     }            
-
-        //     if (switchtype == typeFS) {
-        //     fabric(loc1);            
-        //     }            
-
-        //     if (switchtype == typeRS) {
-        //     rack(loc1,loc2);            
-        //     }            
-        // }
+        }
 
         return;
     }
