@@ -1,3 +1,8 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+
 # frame types
 TYPE_BARC = 0x22F0 # BARC frame 0b0010001011110000
 TYPE_UNIC = 0x22F1 # Unicast frame 0b0010001011110001

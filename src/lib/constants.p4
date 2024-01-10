@@ -1,3 +1,10 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+
 // frame types
 const bit<16> TYPE_BARC = 0x22F0; // BARC frame 0b0010001011110000
 const bit<16> TYPE_UNIC = 0x22F1; // Unicast frame 0b0010001011110001
