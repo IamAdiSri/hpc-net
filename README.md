@@ -1,5 +1,5 @@
 # hpc-net
-Stateless, ethernet-based networking for datacenter-scale HPC applications
+Stateless, ethernet-based networking for datacenter-scale HPC applications.
 
 
 ## About
@@ -13,6 +13,7 @@ This repository contains PoCs for a set of networking protocols that use statele
 - Download VMWare Workstation Player ([link](https://www.vmware.com/mena/products/workstation-player.html))
 - Download the Ubuntu Server 20.04.6 LTS image ([link](https://releases.ubuntu.com/20.04.6/))
 - Install VMWare and create a VM with at least 75 GBs of disk space and 4 GBs of RAM. Use the Ubuntu image downloaded earlier and install the OS to the VM.
+- Run the next steps inside the VM.
 
 ### Step 2: Install P4, Mininet and their Dependencies
 
@@ -32,9 +33,7 @@ The installation files will be present in the home directory and can be deleted 
 
 ### Step 3: Install P4-Utils
 
-The P4-Utils library makes it convenient to build and deploy p4 programs to switches in Mininet.
-
-Run the following commands, in order;
+The P4-Utils library makes it convenient to build and deploy p4 programs to switches in Mininet. To install, run the following commands, in order;
 
 ```bash
 git clone https://github.com/nsg-ethz/p4-utils.git
