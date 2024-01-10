@@ -28,7 +28,6 @@ def barc_init(hname):
     frame = ether / barc
     print("\nSending CEther/BARC frame:")
     ls(frame)
-    print("\n\n")
 
     # start asynchronous sniffer to log replies
     captures = []
@@ -40,6 +39,7 @@ def barc_init(hname):
     # wait for a bit and send frame
     time.sleep(0.1)
     sendp(frame, iface=f"{hname}-eth0")
+    print("\n\n")
 
     # wait for a bit and stop sniffer
     time.sleep(0.1)
