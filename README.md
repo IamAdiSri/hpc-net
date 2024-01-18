@@ -47,6 +47,38 @@ sudo ./install.sh
 
 I recommend using VSCode's remote development plugin to make it more convenient to work in the VM. Instructions can easily be Googled.
 
+### Step 5: Enable X11 Forwarding (Optional)
+
+These are steps for Windows - not sure these will work (may not even be required) for other OSs.
+
+- In Powershell run the following command:
+
+    ```powershell
+    setx DISPLAY "localhost:0"
+    ```
+
+- Install the VcXsrv Windows X Server ([link](https://sourceforge.net/projects/vcxsrv/)). Just install everything with the default selected options.
+- In your ssh config file add the following lines to the profile;
+
+    ```
+    ForwardX11 yes
+    ForwardX11Trusted yes
+    ```
+
+    Alternatively, you can also run ssh with the following command;
+    ```powershell
+    ssh -XY <username>@<vm_IP_address>
+    ```
+- Once inside the VM, the following command should print something;
+    ```bash
+    echo $DISPLAY
+    # outputs "localhost:10.0" for me
+    ```
+
+- When running Mininet in the VM make sure to use `sudo -E`.
+
+**Make sure to start VcXsrv manually before SSHing into the VM otherwise the X11 client won't connect to the display.**
+
 
 ## Usage
 

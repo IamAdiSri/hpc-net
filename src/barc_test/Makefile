@@ -1,9 +1,9 @@
 all: switch.p4 ../lib/constants.p4 ../lib/headers.p4 network.py run_test.py
-	sudo python3 network.py
+	sudo -E python3 network.py
 
 clean:
 	sudo mn -c
-	sudo rm -rf log pcap
+	sudo rm -rf log pcap __pycache__
 	sudo rm switch.json switch.p4i
 	sudo rm topology.json
-	sudo rm output.txt
+	sudo rm output*.txt

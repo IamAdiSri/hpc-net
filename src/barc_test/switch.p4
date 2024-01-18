@@ -96,8 +96,16 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
 
             if (hdr.barc.BI.f0 == FAB_ID) { // from frame switch
 
+                // // old method
+                // // calculate direction of ingress port
+                // bit<1> ingressDir = ((PORT_DIR >> ingressPort) & 0b1)[0:0];
+
+                // new method
                 // calculate direction of ingress port
-                bit<1> ingressDir = ((PORT_DIR >> ingressPort) & 0b1)[0:0];
+                // msb = 0 is low and msb = 1 is high
+                // therefore, low ports start from 0 and
+                // high ports start from 128
+                bit<1> ingressDir = ((ingressPort >> 8) & 0b1)[0:0];
 
                 if (ingressDir == 0) { // low port of ingress
 
