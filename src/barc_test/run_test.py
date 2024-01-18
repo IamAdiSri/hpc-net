@@ -44,14 +44,14 @@ def test_bi(hname):
     print("\n\n")
 
 
-def test_bpfs(hname):
+def test_bprs(hname):
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
     ether = CEther(dst=xtos(BARC_DA), src=":".join(src_addr), type=TYPE_BARC)
 
     # make BARC frame
-    barc = BARC(S=BARC_P, BI=[FAB_ID, 0x01, 0x02, 0x03, 0x04, 0x05])
+    barc = BARC(S=BARC_P, BI=[RCK_ID, 0x01, 0x02, 0x03, 0x04, 0x05])
 
     # compile and display complete frame
     frame = ether / barc
@@ -61,14 +61,14 @@ def test_bpfs(hname):
     print("\n\n")
 
 
-def test_bprs(hname):
+def test_bpfs(hname):
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
     ether = CEther(dst=xtos(BARC_DA), src=":".join(src_addr), type=TYPE_BARC)
 
     # make BARC frame
-    barc = BARC(S=BARC_P, BI=[RCK_ID, 0x01, 0x02, 0x03, 0x04, 0x05])
+    barc = BARC(S=BARC_P, BI=[FAB_ID, 0x01, 0x02, 0x03, 0x04, 0x05])
 
     # compile and display complete frame
     frame = ether / barc
@@ -104,5 +104,5 @@ def listen(hname, sleep_time=10):
     t = AsyncSniffer(prn=lambda x: show(x), store=False, iface=f"{hname}-eth0")
 
     t.start()
-    time.sleep(sleep_time)
-    t.stop()
+    # time.sleep(sleep_time)
+    # t.stop()

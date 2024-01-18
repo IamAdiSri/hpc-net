@@ -105,7 +105,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                 // msb = 0 is low and msb = 1 is high
                 // therefore, low ports start from 0 and
                 // high ports start from 128
-                bit<1> ingressDir = ((ingressPort >> 8) & 0b1)[0:0];
+                bit<1> ingressDir = ((ingressPort >> 7) & 0b1)[0:0];
 
                 if (ingressDir == 0) { // low port of ingress
 
