@@ -7,7 +7,6 @@ Run with `python3 | tee -a output_hname.txt`
 import os
 import sys
 
-import psutil
 from scapy.all import *
 from scapy.layers.l2 import *
 
@@ -19,15 +18,11 @@ from lib.utils import *
 
 src_addr = ["00"] * 6
 
-
-def get_src_mac(hname):
-    nics = psutil.net_if_addrs()[f"{hname}_eth0"]
-    for interface in nics:
-        if interface.family == 17:
-            return interface.address
-
-
 def test_bi(hname):
+    """
+    Test BARC inquiry
+    """
+
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
@@ -64,6 +59,10 @@ def test_bprs(hname):
 
 
 def test_bpfs(hname):
+    """
+    Test BARC proposal to fabric switch
+    """
+    
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
@@ -82,6 +81,10 @@ def test_bpfs(hname):
 
 
 def test_bpss(hname):
+    """
+    Test BARC proposal to spine switch
+    """
+    
     # make BARC frame
     ether = CEther(dst=xtos(BARC_DA), src=":".join(src_addr), type=TYPE_BARC)
 
@@ -99,6 +102,10 @@ def test_bpss(hname):
 
 captures = []
 def listen(hname, sleep_time=10):
+    """
+    Listen for incoming packets
+    """
+    
     def show(x):
         print("Received frames:")
         x = deparser(x)

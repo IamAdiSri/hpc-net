@@ -69,44 +69,26 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
 
         if (hdr.barc.S == BARC_I) { // BARC Inquiry
 
-            if (self_0 == 0x00 || self_0 == RCK_ID) { 
-                                    // address hasn't been set or 
-                                    // has been set correctly
+            // modify frame
+            hdr.barc.S = BARC_P;
+            hdr.barc.BI.f0 = FAB_ID;
+            hdr.barc.BI.f1 = egressPort[7:0];
+            hdr.barc.BI.f2 = 0;
+            hdr.barc.BI.f3 = 0;
+            hdr.barc.BI.f4 = 0;
+            hdr.barc.BI.f5 = 0xFF;
 
-                // set address
-                self_0 = RCK_ID;
-
-                // modify frame
-                hdr.barc.S = BARC_P;
-                hdr.barc.BI.f0 = FAB_ID;
-                hdr.barc.BI.f1 = egressPort[7:0];
-                hdr.barc.BI.f2 = 0;
-                hdr.barc.BI.f3 = 0;
-                hdr.barc.BI.f4 = 0;
-                hdr.barc.BI.f5 = 0xFF;
-
-                // set egress port
-                standard_metadata.egress_spec = egressPort;
-            } 
-            else { // address has been set incorrectly
-
-                // TODO: raise error
-                // mark to drop?
-            }
+            // set egress port
+            standard_metadata.egress_spec = egressPort;
         } 
         else if (hdr.barc.S == BARC_P) { // BARC Proposal
 
-            if (hdr.barc.BI.f0 == FAB_ID) { // from frame switch
+            if (hdr.barc.BI.f0 == FAB_ID) { // to fabric switch
 
-                // // old method
-                // // calculate direction of ingress port
-                // bit<1> ingressDir = ((PORT_DIR >> ingressPort) & 0b1)[0:0];
-
-                // new method
                 // calculate direction of ingress port
                 // msb = 0 is low and msb = 1 is high
                 // therefore, low ports start from 0 and
-                // high ports start from 128
+                // high ports start from 256
                 bit<1> ingressDir = ((ingressPort >> 7) & 0b1)[0:0];
 
                 if (ingressDir == 0) { // low port of ingress
@@ -170,7 +152,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                 }
 
             }
-            else if (hdr.barc.BI.f0 == SPN_ID) { // from spine switch
+            else if (hdr.barc.BI.f0 == SPN_ID) { // to spine switch
 
                 if (self_0 == 0x00 || 
                     (self_0 == hdr.barc.BI.f0 &&
@@ -180,6 +162,8 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                                     // has been set correctly
                     
                     // set address
+                    self_0 = hdr.barc.BI.f0;
+                    self_1 = hdr.barc.BI.f1;
                     self_2 = hdr.barc.BI.f2;
 
                     // modify frame
@@ -194,7 +178,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                     // set egress port
                     standard_metadata.egress_spec = egressPort;
                 }
-                else {
+                else { // address has been set incorrectly
                     
                     // TODO: raise error
                     // mark to drop?
@@ -202,15 +186,17 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                 }
 
             }
-            else if (hdr.barc.BI.f0 == RCK_ID) {// from rack switch
+            else if (hdr.barc.BI.f0 == RCK_ID) { // to rack switch
 
-                if (self_1 == 0x00 || 
-                    (self_1 == hdr.barc.BI.f1 &&
+                if (self_0 == 0x00 || 
+                    (self_0 == hdr.barc.BI.f0 &&
+                     self_1 == hdr.barc.BI.f1 &&
                      self_2 == hdr.barc.BI.f2)) {
                                     // address hasn't been set or 
                                     // has been set correctly
                     
                     // set address
+                    self_0 = hdr.barc.BI.f0;
                     self_1 = hdr.barc.BI.f1;
                     self_2 = hdr.barc.BI.f2;
 
@@ -226,21 +212,21 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                     // set egress port
                     standard_metadata.egress_spec = egressPort;
                 }
-                else {
+                else { // address has been set incorrectly
                     
                     // TODO: raise error
                     // mark to drop?
 
                 }
             }
-            else {
+            else { // unknown switch type
 
                 // TODO: raise error
                 // mark to drop?
 
             }
         }
-        else {
+        else { // unknown BARC type
 
             // TODO: raise error
             // mark to drop?
