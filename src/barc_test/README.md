@@ -4,7 +4,7 @@ A simple BARC protocol test. There are 2 hosts connected to a single switch conn
 
 ## Usage
 
-- Run `make` or `make run` to create the network.
+- Run `make` to build and run the network.
 - Run the following commands to start shell instances in the hosts;
     ```python
     mininet> xterm h1
