@@ -19,7 +19,7 @@ net.setIntfPort("h1", "s1", 0)  # Set the number of the port on h1 facing s1
 
 
 net.addLink("s1", "h2")
-net.setIntfPort("s1", "h2", 128)
+net.setIntfPort("s1", "h2", 256)
 net.setIntfPort("h2", "s1", 0)
 
 # enable logging

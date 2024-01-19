@@ -53,11 +53,13 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
     bit<8> self_2;        // switch location field 2
 
     // record the ingress port
-    bit<8> ingressPort = standard_metadata.ingress_port[7:0];
+    // bit<8> ingressPort = standard_metadata.ingress_port[7:0];
+    bit<9> ingressPort = standard_metadata.ingress_port;
 
     // calculate egress port
     // bit<8> egressPort = ingressPort ^ 0b100000000;
-    bit<8> egressPort = ingressPort ^ (1<<7);
+    // bit<8> egressPort = ingressPort ^ (1<<7);
+    bit<9> egressPort = ingressPort ^ (1<<8);
 
     action barc() {
         // load switch address
@@ -77,14 +79,14 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                 // modify frame
                 hdr.barc.S = BARC_P;
                 hdr.barc.BI.f0 = FAB_ID;
-                hdr.barc.BI.f1 = egressPort;
+                hdr.barc.BI.f1 = egressPort[7:0];
                 hdr.barc.BI.f2 = 0;
                 hdr.barc.BI.f3 = 0;
                 hdr.barc.BI.f4 = 0;
                 hdr.barc.BI.f5 = 0xFF;
 
                 // set egress port
-                standard_metadata.egress_spec = (bit<9>) egressPort;
+                standard_metadata.egress_spec = egressPort;
             } 
             else { // address has been set incorrectly
 
@@ -123,13 +125,13 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                         hdr.barc.S = BARC_P;
                         hdr.barc.BI.f0 = SPN_ID;
                         hdr.barc.BI.f1 = hdr.barc.BI.f1;
-                        hdr.barc.BI.f2 = egressPort;
+                        hdr.barc.BI.f2 = egressPort[7:0];
                         hdr.barc.BI.f3 = 0;
                         hdr.barc.BI.f4 = 0;
                         hdr.barc.BI.f5 = 0;
 
                         // set egress port
-                        standard_metadata.egress_spec = (bit<9>) egressPort;
+                        standard_metadata.egress_spec = egressPort;
                     } 
                     else { // address has been set incorrectly
 
@@ -151,13 +153,13 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                         hdr.barc.S = BARC_P;
                         hdr.barc.BI.f0 = RCK_ID;
                         hdr.barc.BI.f1 = hdr.barc.BI.f2;
-                        hdr.barc.BI.f2 = egressPort;
+                        hdr.barc.BI.f2 = egressPort[7:0];
                         hdr.barc.BI.f3 = 0;
                         hdr.barc.BI.f4 = 0;
                         hdr.barc.BI.f5 = 0;
 
                         // set egress port
-                        standard_metadata.egress_spec = (bit<9>) egressPort;
+                        standard_metadata.egress_spec = egressPort;
                     } 
                     else { // address has been set incorrectly
 
@@ -184,13 +186,13 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                     hdr.barc.S = BARC_P;
                     hdr.barc.BI.f0 = FAB_ID;
                     hdr.barc.BI.f1 = hdr.barc.BI.f1;
-                    hdr.barc.BI.f2 = egressPort;
+                    hdr.barc.BI.f2 = egressPort[7:0];
                     hdr.barc.BI.f3 = 0;
                     hdr.barc.BI.f4 = 0;
                     hdr.barc.BI.f5 = 0;
 
                     // set egress port
-                    standard_metadata.egress_spec = (bit<9>) egressPort;
+                    standard_metadata.egress_spec = egressPort;
                 }
                 else {
                     
@@ -217,12 +219,12 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                     hdr.barc.BI.f0 = HST_ID;
                     hdr.barc.BI.f1 = hdr.barc.BI.f1;
                     hdr.barc.BI.f2 = hdr.barc.BI.f2;
-                    hdr.barc.BI.f3 = egressPort;
+                    hdr.barc.BI.f3 = egressPort[7:0];
                     hdr.barc.BI.f4 = 0;
                     hdr.barc.BI.f5 = 0;
 
                     // set egress port
-                    standard_metadata.egress_spec = (bit<9>) egressPort;
+                    standard_metadata.egress_spec = egressPort;
                 }
                 else {
                     
