@@ -29,7 +29,3 @@ A simple BARC protocol test. There are 2 hosts connected to a single switch conn
 - Press return on the other host to see outputs.
 - The outputs of the tests are also written to `output_<hostname>.txt`.
 - Run `make clean` to remove intermediate files.
-
-## Notes
-
-- Currently works with 8-bit port addressing. Need to figure out how to do 9-bit addressing.
