@@ -1,8 +1,9 @@
-#! /usr/bin/python3
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-"""
-Run with `python3 | tee -a output_hname.txt`
-"""
+
+# Run with `python3 | tee -a output_hname.txt`
 
 import os
 import sys
