@@ -4,7 +4,6 @@
 
 #include "../lib/headers.p4"
 #include "../lib/constants.p4"
-#include "runtime.p4" // generated at runtime
 
 // Three 8-bit registers for global addressing
 register<bit<8>>(3) self;

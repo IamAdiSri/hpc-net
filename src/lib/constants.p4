@@ -22,7 +22,7 @@ const bit<4>  BARC_I  = 0xA;
 const bit<4>  BARC_P  = 0xB;
 
 // node identifiers
-const bit<8> HST_ID = 0xAE; // Host identifier 0b10101110
-const bit<8> SPN_ID = 0xEE; // Spine identifier 0b11101110
-const bit<8> FAB_ID = 0xFE; // Fabric identifier 0b11111110
-const bit<8> RCK_ID = 0xBE; // Rack identifier 0b10111110
+const bit<8> HST_ID = 0xA0; // Host identifier 0b10100000
+const bit<8> SPN_ID = 0xE0; // Spine identifier 0b11100000
+const bit<8> FAB_ID = 0xF0; // Fabric identifier 0b11110000
+const bit<8> RCK_ID = 0xB0; // Rack identifier 0b10110000

@@ -18,6 +18,7 @@ from lib.utils import *
 
 src_addr = ["00"] * 6
 
+
 def test_bi(hname):
     """
     Test BARC inquiry
@@ -62,7 +63,7 @@ def test_bpfs(hname):
     """
     Test BARC proposal to fabric switch
     """
-    
+
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
@@ -84,7 +85,7 @@ def test_bpss(hname):
     """
     Test BARC proposal to spine switch
     """
-    
+
     # make BARC frame
     ether = CEther(dst=xtos(BARC_DA), src=":".join(src_addr), type=TYPE_BARC)
 
@@ -100,12 +101,15 @@ def test_bpss(hname):
     sendp(frame, iface=f"{hname}-eth0")
     print("\n\n")
 
+
 captures = []
+
+
 def listen(hname, sleep_time=10):
     """
     Listen for incoming packets
     """
-    
+
     def show(x):
         print("Received frames:")
         x = deparser(x)
