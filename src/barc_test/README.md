@@ -12,23 +12,22 @@ A simple BARC protocol test. There are 2 hosts connected to a single switch conn
     ```
 - Use the shells to start python in both hosts;
     ```
-    python3 | tee output_h<host_number>.txt
+    python3 | tee output_<hostname>.txt
     ```
-- In host h2, run the following commands;
+- In host h1 and h2, run the following commands;
     ```python
     from test import *
-    listen("h2")
+    listen("<hostname>")
     ```
-- In host h1, run the following commands (press return after each frame is sent to get back the prompt);
+- In either host, run the following commands (press return after each frame is sent to get back the prompt);
     ```python
-    from test import *
-    test_bprs("h1")
-    test_bpfs("h1")
-    test_bpss("h1")
-    test_bi("h1")
+    test_bi("<hostname>")
+    test_bprs("<hostname>")
+    test_bpfs("<hostname>")
+    test_bpss("<hostname>")
     ```
-- Press return in h2 to see outputs.
-- The outputs of the tests are also written to `output_h<host_number>.txt`.
+- Press return on the other host to see outputs.
+- The outputs of the tests are also written to `output_<hostname>.txt`.
 - Run `make clean` to remove intermediate files.
 
 ## Notes
