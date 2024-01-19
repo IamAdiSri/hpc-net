@@ -39,7 +39,8 @@ def test_bi(hname):
     # compile and display complete frame
     frame = ether / barc
     print("\nSending CEther/BARC frame:")
-    ls(frame)
+    frame.show()
+    # ls(frame)
     sendp(frame, iface=f"{hname}-eth0")
     print("\n\n")
 
@@ -56,7 +57,8 @@ def test_bprs(hname):
     # compile and display complete frame
     frame = ether / barc
     print("\nSending CEther/BARC frame:")
-    ls(frame)
+    frame.show()
+    # ls(frame)
     sendp(frame, iface=f"{hname}-eth0")
     print("\n\n")
 
@@ -73,7 +75,8 @@ def test_bpfs(hname):
     # compile and display complete frame
     frame = ether / barc
     print("\nSending CEther/BARC frame:")
-    ls(frame)
+    frame.show()
+    # ls(frame)
     sendp(frame, iface=f"{hname}-eth0")
     print("\n\n")
 
@@ -89,16 +92,20 @@ def test_bpss(hname):
     # compile and display complete frame
     frame = ether / barc
     print("\nSending CEther/BARC frame:")
-    ls(frame)
+    frame.show()
+    # ls(frame)
     sendp(frame, iface=f"{hname}-eth0")
     print("\n\n")
 
-
+captures = []
 def listen(hname, sleep_time=10):
     def show(x):
         print("Received frames:")
-        ls(x)
+        x = deparser(x)
+        x.show()
+        # ls(x)
         print("\n\n")
+        captures.append(x)
 
     # start asynchronous sniffer to log replies
     t = AsyncSniffer(prn=lambda x: show(x), store=False, iface=f"{hname}-eth0")

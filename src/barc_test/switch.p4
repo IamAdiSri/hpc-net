@@ -178,7 +178,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                                     // has been set correctly
                     
                     // set address
-                        self_2 = hdr.barc.BI.f2;
+                    self_2 = hdr.barc.BI.f2;
 
                     // modify frame
                     hdr.barc.S = BARC_P;
@@ -244,10 +244,10 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
             // mark to drop?
         }
 
-        // update switch address
-        self.write((bit<32>) 0, self_0);
-        self.write((bit<32>) 1, self_1);
-        self.write((bit<32>) 2, self_2);        
+        // update switch address (needs to be uncommented in non-test version)
+        // self.write((bit<32>) 0, self_0);
+        // self.write((bit<32>) 1, self_1);
+        // self.write((bit<32>) 2, self_2);        
 
         return;
     }

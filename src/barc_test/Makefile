@@ -1,4 +1,4 @@
-all: switch.p4 ../lib/constants.p4 ../lib/headers.p4 network.py run_test.py
+all: switch.p4 ../lib/constants.p4 ../lib/headers.p4 network.py test.py
 	sudo -E python3 network.py
 
 clean:
