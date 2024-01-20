@@ -3,11 +3,16 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from scapy.fields import (BitEnumField, BitField, FieldListField, MACField,
-                          XByteField, XShortEnumField)
-from scapy.packet import Packet, bind_layers
-
 from lib.constants import *
+from scapy.fields import (
+    BitEnumField,
+    BitField,
+    FieldListField,
+    MACField,
+    XByteField,
+    XShortEnumField,
+)
+from scapy.packet import Packet, bind_layers
 
 
 class CEther(Packet):
