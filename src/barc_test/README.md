@@ -1,6 +1,6 @@
 # BARC test
 
-A simple BARC protocol test. There are 2 hosts connected to a single switch connected at port 0 and port 128 (the second host's port needs to be flipped). We first send one of the BARC frames from host A and listen at host B, and then do the opposite, making the hosts simulate either a host or switch in the topology. The switch just forwards the frames, making modifications according to the protocol.
+A simple BARC protocol test. There are 2 hosts connected to a single switch connected at port 0 and port 256 (the second host's port needs to be flipped). We first send one of the BARC frames from host A and listen at host B, and then do the opposite, making the hosts simulate either a host or switch in the topology. The switch just forwards the frames, making modifications according to the protocol.
 
 ## Usage
 
