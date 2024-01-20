@@ -38,13 +38,13 @@ class FatTreeTopo(NetworkAPI):
         fab_switches = [self.addP4Switch(f"fab{i}") for i in range(k**2 // 2)]
 
         # |rack switches| = (k**2)//2
-        rck_switches = [self.addP4Switch(f"tor{i}") for i in range(k**2 // 2)]
+        rck_switches = [self.addP4Switch(f"rck{i}") for i in range(k**2 // 2)]
 
         # deploy switch program to all switches
         self.setP4SourceAll(src)
 
         # |hosts| = (k**3)//4
-        hosts = [self.addHost(f"srv{i}") for i in range(k**3 // 4)]
+        hosts = [self.addHost(f"hst{i}") for i in range(k**3 // 4)]
 
         # Connect spine switches to fabric switches
         fab_conns = [[] for _ in range(len(fab_switches))]
@@ -61,7 +61,7 @@ class FatTreeTopo(NetworkAPI):
 
                 self.addLink(spn_switches[c], fab_switches[f])
                 self.setIntfPort(spn_switches[c], fab_switches[f], c + s_port)
-                self.setIntfPort(fab_switches[f], spn_switches[c], 256 + c + f_port)
+                self.setIntfPort(fab_switches[f], spn_switches[c], c + f_port)
                 fab_conns[f].append(c + f_port)
 
         # Connect fabric switches to rack switches
