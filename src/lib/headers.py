@@ -3,7 +3,6 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from lib.constants import *
 from scapy.fields import (
     BitEnumField,
     BitField,
@@ -13,6 +12,8 @@ from scapy.fields import (
     XShortEnumField,
 )
 from scapy.packet import Packet, bind_layers
+
+from lib.constants import *
 
 
 class CEther(Packet):

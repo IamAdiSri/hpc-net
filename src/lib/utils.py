@@ -13,5 +13,5 @@ def xtos(x):
     Returns:
         str: MAC address delimited by ':'
     """
-    
+
     return ":".join("{0:012x}".format(x)[i : i + 2] for i in range(0, 12, 2))
