@@ -7,6 +7,8 @@
 
 import os
 import sys
+import argparse
+import time
 
 from scapy.all import *
 from scapy.layers.l2 import *
@@ -20,7 +22,7 @@ from lib.utils import *
 src_addr = ["00"] * 6
 
 
-def test_bi(hname):
+def test_bi(intf):
     """
     Test BARC inquiry
     """
@@ -38,11 +40,11 @@ def test_bi(hname):
     print("\nSending CEther/BARC frame:")
     frame.show()
     # ls(frame)
-    sendp(frame, iface=f"{hname}-eth0")
+    sendp(frame, iface=intf)
     print("\n\n")
 
 
-def test_bprs(hname):
+def test_bprs(intf):
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
@@ -56,11 +58,11 @@ def test_bprs(hname):
     print("\nSending CEther/BARC frame:")
     frame.show()
     # ls(frame)
-    sendp(frame, iface=f"{hname}-eth0")
+    sendp(frame, iface=intf)
     print("\n\n")
 
 
-def test_bpfs(hname):
+def test_bpfs(intf):
     """
     Test BARC proposal to fabric switch
     """
@@ -78,11 +80,11 @@ def test_bpfs(hname):
     print("\nSending CEther/BARC frame:")
     frame.show()
     # ls(frame)
-    sendp(frame, iface=f"{hname}-eth0")
+    sendp(frame, iface=intf)
     print("\n\n")
 
 
-def test_bpss(hname):
+def test_bpss(intf):
     """
     Test BARC proposal to spine switch
     """
@@ -99,14 +101,14 @@ def test_bpss(hname):
     print("\nSending CEther/BARC frame:")
     frame.show()
     # ls(frame)
-    sendp(frame, iface=f"{hname}-eth0")
+    sendp(frame, iface=intf)
     print("\n\n")
 
 
 captures = []
 
 
-def listen(hname, sleep_time=10):
+def listen(intf):
     """
     Listen for incoming packets
     """
@@ -120,8 +122,21 @@ def listen(hname, sleep_time=10):
         captures.append(x)
 
     # start asynchronous sniffer to log replies
-    t = AsyncSniffer(prn=lambda x: show(x), store=False, iface=f"{hname}-eth0")
+    t = AsyncSniffer(prn=lambda x: show(x), store=False, iface=intf)
 
     t.start()
-    # time.sleep(sleep_time)
-    # t.stop()
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        prog="test.py", description="Run host traffic simulation"
+    )
+    parser.add_argument("interface", type=str)
+    args = parser.parse_args()
+
+    # start async sniffing
+    listen(args.interface)
+    time.sleep(5)
+
+    # send BARC initilization frame
+    test_bi(args.interface)
+    time.sleep(10)

@@ -1,4 +1,4 @@
-output.txt
+outputs/
 switch.json
 switch.p4i
 topology.json
