@@ -5,6 +5,8 @@
  */
 
 
+/* -*- P4_16 -*- */
+
 // frame types
 const bit<16> TYPE_BARC = 0x22F0; // BARC frame 0b0010001011110000
 const bit<16> TYPE_UNIC = 0x22F1; // Unicast frame 0b0010001011110001
