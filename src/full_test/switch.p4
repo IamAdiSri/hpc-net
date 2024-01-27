@@ -59,15 +59,13 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
     bit<8> self_2;        // switch location field 2
 
     // record the ingress port
-    // bit<8> ingressPort = standard_metadata.ingress_port[7:0];
     bit<9> ingressPort = standard_metadata.ingress_port;
 
     // calculate egress port
-    // bit<8> egressPort = ingressPort ^ 0b100000000;
-    // bit<8> egressPort = ingressPort ^ (1<<7);
     bit<9> egressPort = ingressPort ^ (1<<8);
 
     action barc() {
+
         // load switch address
         self.read(self_0, (bit<32>) 0);
         self.read(self_1, (bit<32>) 1);
@@ -95,7 +93,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                 // msb = 0 is low and msb = 1 is high
                 // therefore, low ports start from 0 and
                 // high ports start from 256
-                bit<1> ingressDir = ((ingressPort >> 7) & 0b1)[0:0];
+                bit<1> ingressDir = (ingressPort >> 8)[0:0];
 
                 if (ingressDir == 0) { // low port of ingress
 
@@ -125,6 +123,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
 
                         // TODO: raise error
                         // mark to drop?
+                        standard_metadata.egress_spec = 69;
                     }
 
                 }
@@ -153,6 +152,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
 
                         // TODO: raise error
                         // mark to drop?
+                        standard_metadata.egress_spec = 70;
                     }
 
                 }
@@ -188,7 +188,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                     
                     // TODO: raise error
                     // mark to drop?
-
+                    standard_metadata.egress_spec = 71;
                 }
 
             }
@@ -222,6 +222,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
                     
                     // TODO: raise error
                     // mark to drop?
+                    standard_metadata.egress_spec = 72;
 
                 }
             }
@@ -229,6 +230,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
 
                 // TODO: raise error
                 // mark to drop?
+                standard_metadata.egress_spec = 73;
 
             }
         }
@@ -236,6 +238,7 @@ control MyIngress(inout headers hdr, inout metadata_t meta, inout standard_metad
 
             // TODO: raise error
             // mark to drop?
+            standard_metadata.egress_spec = 74;
         }
 
         // update switch address (needs to be uncommented in non-test version)

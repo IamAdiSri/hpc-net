@@ -4,7 +4,7 @@ import time
 
 sys.path.append(os.path.join(sys.path[0], ".."))
 
-from lib.fattree import FatTreeTopo
+from lib.fattree_revised import FatTreeTopo
 
 # initialize network
 net = FatTreeTopo(loglevel="info")
