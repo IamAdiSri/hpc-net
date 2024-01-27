@@ -11,7 +11,6 @@ def flip(p, bits=9):
 
 
 def build(k=4):
-    # |pods| = k
     npod = k                    # number of pods
     nspn = k//2                 # number of spines
     nspns = (k//2) ** 2         # number of spine switches
