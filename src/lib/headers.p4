@@ -5,6 +5,8 @@
  */
 
 
+/* -*- P4_16 -*- */
+
 // 48-bit flow-zone address
 struct addr_t {
     bit<8> f0;

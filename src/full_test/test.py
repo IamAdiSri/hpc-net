@@ -5,9 +5,9 @@
 
 # Run with `python3 | tee -a output_hname.txt`
 
+import argparse
 import os
 import sys
-import argparse
 import time
 
 from scapy.all import *
@@ -126,6 +126,7 @@ def listen(intf):
 
     t.start()
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         prog="test.py", description="Run host traffic simulation"
@@ -135,8 +136,14 @@ if __name__ == "__main__":
 
     # start async sniffing
     listen(args.interface)
-    time.sleep(5)
+
+    # this timeout will need to be
+    # increased for larger k values
+    time.sleep(1)
 
     # send BARC initilization frame
     test_bi(args.interface)
-    time.sleep(10)
+
+    # this timeout will need to be
+    # increased for larger k values
+    time.sleep(1)

@@ -10,7 +10,7 @@ from lib.fattree import FatTreeTopo
 net = FatTreeTopo(loglevel="info")
 
 # build k-ary fat-tree
-net.setup(src="switch.p4", k=6)
+net.setup(src="switch.p4", k=4)
 
 # enable logging
 net.enablePcapDumpAll()
@@ -25,6 +25,8 @@ for hname in net.ft_hosts:
     hobj = net.net.get(hname)
     hobj.cmd(f"nohup python3 test.py {hobj.intf().name} > outputs/output_{hname}.txt &")
 
-time.sleep(60)
+# this timeout will need to be
+# increased for larger k values
+time.sleep(5)
 
 net.net.stop()
