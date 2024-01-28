@@ -13,6 +13,7 @@
 #include "../lib/headers.p4"
 #include "../lib/constants.p4"
 #include "../lib/registers.p4"
+#include "runtime.p4"
 
 #include "../lib/parser.p4"
 #include "../lib/ingress.p4"

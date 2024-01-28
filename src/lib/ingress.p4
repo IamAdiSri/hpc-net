@@ -137,7 +137,41 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
         
     }
 
-    action barc_p_ss() {
+    action barc_p_ss_low() {
+        
+        if (self_0 == 0x00 || 
+            (self_0 == hdr.barc.BI.f0 &&
+                self_1 == hdr.barc.BI.f1 &&
+                self_2 == hdr.barc.BI.f2)) {
+                            // address hasn't been set or 
+                            // has been set correctly
+            
+            // set address
+            self_0 = hdr.barc.BI.f0;
+            self_1 = hdr.barc.BI.f1;
+            self_2 = hdr.barc.BI.f2;
+
+            // modify frame
+            hdr.barc.S = BARC_P;
+            hdr.barc.BI.f0 = FAB_ID;
+            hdr.barc.BI.f1 = hdr.barc.BI.f1;
+            hdr.barc.BI.f2 = egressPort[7:0] + TREE_K/2;
+            hdr.barc.BI.f3 = 0;
+            hdr.barc.BI.f4 = 0;
+            hdr.barc.BI.f5 = 0;
+
+            // set egress port
+            standard_metadata.egress_spec = egressPort;
+        }
+        else { // address has been set incorrectly
+            
+            // TODO: raise error
+            // mark to drop?
+            standard_metadata.egress_spec = 71;
+        }
+    }
+
+    action barc_p_ss_high() {
         
         if (self_0 == 0x00 || 
             (self_0 == hdr.barc.BI.f0 &&
@@ -199,7 +233,14 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                     barc_p_rs();
                 }
                 else if (hdr.barc.BI.f0 == SPN_ID) { //  to spine switch
-                    barc_p_ss();
+                    if (ingressDir == 0) {
+                        // low port of ingress
+                        barc_p_ss_low();
+                    }
+                    else {
+                        // high port of ingress
+                        barc_p_ss_high();
+                    }
                 }
                 else { // unknown switch type
                     // TODO: raise error
@@ -217,6 +258,54 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                 // TODO: raise error
                 // mark to drop?
                 standard_metadata.egress_spec = 74;
+            }
+        }
+        else if (hdr.ethernet.etherType == TYPE_UNIC) { // not barc
+            
+            // load switch address
+            self.read(self_0, (bit<32>) 0);
+            self.read(self_1, (bit<32>) 1);
+            self.read(self_2, (bit<32>) 2);
+
+            if (hdr.ethernet.dstAddr.f0 & 1 == 1) { // multicast
+                // TODO: multicast
+                // mark to drop
+                standard_metadata.egress_spec = 75;
+            }
+            else { // unicast
+                
+                if (self_0 == RCK_ID) { // rack switch
+
+                    if (hdr.ethernet.dstAddr.f1 == self_1 &&
+                        hdr.ethernet.dstAddr.f2 == self_2) {
+                        
+                        standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f3;
+                    }
+                    else {
+                        // TODO: recheck this
+                        standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f5;
+                    }
+                }
+                else if (self_0 == FAB_ID) { // fabric switch
+
+                    if (hdr.ethernet.dstAddr.f1 == self_2) {
+                        
+                        standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f2;
+                    }
+                    else {
+                        // TODO: recheck this
+                        standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f4;
+                    }
+                }
+                if (self_0 == SPN_ID) { // spine switch
+
+                    standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f1;
+                }
+                else { // unknown switch
+                    // TODO: raise error
+                    // mark to drop?
+                    standard_metadata.egress_spec = 76;
+                }
             }
         }
     }
