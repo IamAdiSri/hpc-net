@@ -282,8 +282,12 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                         standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f3;
                     }
                     else {
-                        // TODO: recheck this
-                        standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f5;
+                        if (ingressDir == 1) {
+                            standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f5;
+                        }
+                        else {
+                            standard_metadata.egress_spec = ((bit<9>) hdr.ethernet.dstAddr.f5) ^ (1<<8);
+                        }
                     }
                 }
                 else if (self_0 == FAB_ID) { // fabric switch
@@ -293,13 +297,21 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                         standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f2;
                     }
                     else {
-                        // TODO: recheck this
-                        standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f4;
+                        if (ingressDir == 1){
+                            standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f4;
+                        }
+                        else {
+                            standard_metadata.egress_spec = ((bit<9>) hdr.ethernet.dstAddr.f4) ^ (1<<8);
+                        }
                     }
                 }
-                if (self_0 == SPN_ID) { // spine switch
-
-                    standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f1;
+                else if (self_0 == SPN_ID) { // spine switch
+                    if (ingressDir == 1){
+                        standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f1;
+                    }
+                    else {
+                        standard_metadata.egress_spec = ((bit<9>) hdr.ethernet.dstAddr.f1 - TREE_K/2) ^ (1<<8);
+                    }
                 }
                 else { // unknown switch
                     // TODO: raise error

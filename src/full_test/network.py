@@ -22,7 +22,7 @@ f"""/*
 
 /* -*- P4_16 -*- */
 
-const int TREE_K={K};"""
+const int TREE_K={bin(K)};"""
     )
 
 # enable logging
@@ -42,6 +42,6 @@ for hname in net.ft_hosts:
 # increased for larger k values
 time.sleep(10)
 
-# net.start_net_cli()
+net.start_net_cli()
 
 net.net.stop()
