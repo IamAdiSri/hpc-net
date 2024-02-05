@@ -8,6 +8,7 @@ from scapy.fields import (
     BitField,
     FieldListField,
     MACField,
+    StrField,
     XByteField,
     XShortEnumField,
 )
@@ -49,19 +50,11 @@ class BARC(Packet):
 class UNIC(Packet):
     """
     Unicast headers
-
-    TODO
     """
 
     name = "UNICPacket"
     fields_desc = [
-        XByteField("subtype", 0x00),
-        BitField("h", 0b0, 1),
-        BitField("version", 0b000, 3),
-        BitEnumField("S", BARC_I, 4, {BARC_I: "I", BARC_P: "P"}),
-        FieldListField("BI", [], XByteField("", 0x00), count_from=lambda pkt: 6),
-        BitField("BA", 0x000000000000, 48),
-        BitField("Info", 0x000000000000, 48),
+        StrField("payload", "", fmt="H"),
     ]
 
 
@@ -74,5 +67,5 @@ def deparser(pkt):
     Takes an arbitrary packet and deparses
     it to fit the CEther frame.
     """
-    raw = bytes(pkt)
-    return CEther(raw)
+    
+    return CEther(bytes(pkt))

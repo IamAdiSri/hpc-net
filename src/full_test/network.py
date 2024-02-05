@@ -10,7 +10,20 @@ from lib.fattree import FatTreeTopo
 net = FatTreeTopo(loglevel="info")
 
 # build k-ary fat-tree
-net.setup(src="switch.p4", k=4)
+K = 4
+net.setup(src="switch.p4", k=K)
+with open("runtime.p4", "w") as f:
+    f.write(
+f"""/*
+ * This file is generated dynamically at runtime.
+ * DO NOT MAKE EDITS HERE AS THEY WILL BE OVERWRITTEN.
+ */
+
+
+/* -*- P4_16 -*- */
+
+const int TREE_K={bin(K)};"""
+    )
 
 # enable logging
 net.enablePcapDumpAll()
@@ -27,6 +40,8 @@ for hname in net.ft_hosts:
 
 # this timeout will need to be
 # increased for larger k values
-time.sleep(5)
+time.sleep(10)
+
+net.start_net_cli()
 
 net.net.stop()
