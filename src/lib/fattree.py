@@ -25,9 +25,7 @@ class FatTreeTopo(NetworkAPI):
         """
 
         def flip(p):
-            if p < 256:
-                return p + 256
-            return p - 256
+            return (p + k//2) % k
 
         npod = k  # number of pods
         nspn = k // 2  # number of spines
@@ -41,9 +39,9 @@ class FatTreeTopo(NetworkAPI):
         # spine switches
         spn_mat = [[None] * nspnp for _ in range(nspn)]
         spn_switches = []
-        for sid in range(nspn):
-            for ssid in range(nspnp):
-                s = self.addP4Switch(f"spn_{sid}_{ssid}")
+        for ssid in range(nspnp):
+            for sid in range(nspn):
+                s = self.addP4Switch(f"spn_{ssid}_{sid}")
                 spn_mat[sid][ssid] = s
                 spn_switches.append(s)
 
@@ -52,7 +50,7 @@ class FatTreeTopo(NetworkAPI):
         fab_switches = []
         for pid in range(npod):
             for sid in range(nspn):
-                f = self.addP4Switch(f"fab_{sid}_{pid}")
+                f = self.addP4Switch(f"fab_{pid}_{sid}")
                 fab_mat[pid][sid] = f
                 fab_switches.append(f)
 
@@ -97,11 +95,11 @@ class FatTreeTopo(NetworkAPI):
 
         # connect spine switches to fabric switches
         for s in spn_switches:
-            sid, ssid = (int(n) for n in s.split("_")[1:])
+            ssid, sid = (int(n) for n in s.split("_")[1:])
             # print(sid, ssid, [f[sid] for f in fab_mat])
             fs = [f[sid] for f in fab_mat]
             for f in fs:
-                fsid, fpid = (int(n) for n in f.split("_")[1:])
+                fpid, fsid = (int(n) for n in f.split("_")[1:])
                 port = ssid
                 self.addLink(s, f)
                 if fpid < k // 2:
