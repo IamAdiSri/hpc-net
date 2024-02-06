@@ -3,12 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-def flip(p, bits=9):
-    d = (2**bits) // 2
-    if p < d:
-        return p + d
-    return p - d
-
+def flip(p, k=4):
+    return (p + k//2) % k
 
 def build(k=4):
     npod = k  # number of pods
@@ -25,10 +21,10 @@ def build(k=4):
     # spine switches
     spn_mat = [[None] * nspnp for _ in range(nspn)]
     spn_switches = []
-    for sid in range(nspn):
-        for ssid in range(nspnp):
-            spn_mat[sid][ssid] = f"spn_{sid}_{ssid}"
-            spn_switches.append(f"spn_{sid}_{ssid}")
+    for ssid in range(nspnp):
+        for sid in range(nspn):
+            spn_mat[sid][ssid] = f"spn_{ssid}_{sid}"
+            spn_switches.append(f"spn_{ssid}_{sid}")
 
     print(f"Adding {len(spn_switches)} spine switches!")
     print(*spn_mat, sep="\n", end="\n\n")
@@ -41,8 +37,8 @@ def build(k=4):
     fab_switches = []
     for pid in range(npod):
         for sid in range(nspn):
-            fab_mat[pid][sid] = f"fab_{sid}_{pid}"
-            fab_switches.append(f"fab_{sid}_{pid}")
+            fab_mat[pid][sid] = f"fab_{pid}_{sid}"
+            fab_switches.append(f"fab_{pid}_{sid}")
 
     print(f"Adding {len(fab_switches)} fabric switches!")
     print(*fab_mat, sep="\n", end="\n\n")
@@ -93,22 +89,24 @@ def build(k=4):
         pid, rid = (int(n) for n in r.split("_")[1:])
         fs = fab_mat[pid]
         for i, f in enumerate(fs):
-            print(f"{r}:{flip(i)} --> {f}:{rid}")
+            print(f"{r}:{flip(i, k)} --> {f}:{rid}")
     print("\n")
     
     # connect spine switches to fabric switches
     print("Connecting spine switches to fabric switches!")
     for s in spn_switches:
-        sid, ssid = (int(n) for n in s.split("_")[1:])
-        # print(sid, ssid, [f[sid] for f in fab_mat])
+        ssid, sid = (int(n) for n in s.split("_")[1:])
+        # print(ssid, sid, [f[sid] for f in fab_mat])
         fs = [f[sid] for f in fab_mat]
         for f in fs:
-            fsid, fpid = (int(n) for n in f.split("_")[1:])
+            fpid, fsid = (int(n) for n in f.split("_")[1:])
             port = ssid
             if fpid < k // 2:
-                print(f"{s}:{fpid%(k//2)}\t--> {f}:{flip(port)}")
+                print(f"{s}:{fpid%(k//2)}\t--> {f}:{flip(port, k)}")
             else:
-                print(f"{s}:{flip(fpid%(k//2))}\t--> {f}:{flip(port)}")
+                print(f"{s}:{flip(fpid%(k//2), k)}\t--> {f}:{flip(port, k)}")
+
+    return
 
 
 build(int(input("Enter k: ")))

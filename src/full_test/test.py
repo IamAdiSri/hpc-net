@@ -190,11 +190,11 @@ if __name__ == "__main__":
 
     # this timeout will need to be
     # increased for larger k values
-    time.sleep(1)
+    time.sleep(10)
 
     # send BARC initilization frame
     test_bi(args.interface)
 
     # this timeout will need to be
     # increased for larger k values
-    time.sleep(1)
+    time.sleep(10)
