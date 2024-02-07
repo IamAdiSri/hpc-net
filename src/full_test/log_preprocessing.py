@@ -1,13 +1,25 @@
 import os
 import sys
 import json
+import datetime
+
+
+def convert_time(timestamp):
+    h, m, s = timestamp.split(":")
+    s, ms = s.split(".")
+    # choosing a random year, month and day
+    # because it doesn't make a difference
+    # as long as we don't cross midnight
+    # while running the network
+    return datetime.datetime(2012, 12, 12, int(h), int(m), int(s), int(ms)).timestamp()
+
 
 logs = {}
 logdir = os.path.join(sys.path[0], "log")
 
 for filename in os.listdir(logdir):
     with open(os.path.join(logdir, filename), "r") as f:
-        logs[filename.split('.')[1]] = f.readlines()
+        logs[filename.split(".")[1]] = f.readlines()
 
 # remove unnecessary lines
 for switch_name in logs:
@@ -28,18 +40,18 @@ for switch_name in logs:
     l = len(logs[switch_name])
     for i in range(0, l, 3):
         ingress_line = logs[switch_name][i]
-        type_line = logs[switch_name][i+1]
-        egress_line = logs[switch_name][i+2]
+        type_line = logs[switch_name][i + 1]
+        egress_line = logs[switch_name][i + 2]
 
-        ingress_line = ingress_line.split(' ')
-        type_line = type_line.split(' ')
-        egress_line = egress_line.split(' ')
+        ingress_line = ingress_line.split(" ")
+        type_line = type_line.split(" ")
+        egress_line = egress_line.split(" ")
         t = {
-            "ingress_time": ingress_line[0][1:-1],
+            "ingress_time": convert_time(ingress_line[0][1:-1]),
             "ingress_port": int(ingress_line[-1]),
-            "egress_time" : egress_line[0][1:-1],
-            "egress_port" : int(egress_line[-1]),
-            "type": "BARC" if type_line[-1] == "true" else "Payload"
+            "egress_time": convert_time(egress_line[0][1:-1]),
+            "egress_port": int(egress_line[-1]),
+            "type": "BARC" if type_line[-1] == "true" else "Payload",
         }
         if t["egress_port"] != 511:
             formatted.append(t)

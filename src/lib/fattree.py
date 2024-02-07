@@ -25,7 +25,7 @@ class FatTreeTopo(NetworkAPI):
         """
 
         def flip(p):
-            return (p + k//2) % k
+            return (p + k // 2) % k
 
         npod = k  # number of pods
         nspn = k // 2  # number of spines
