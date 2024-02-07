@@ -7,4 +7,5 @@ clean:
 	sudo rm -rf log pcap __pycache__ outputs
 	sudo rm switch.json switch.p4i runtime.p4
 	sudo rm topology.json
+	rm preprocessed_logs.json
 	
