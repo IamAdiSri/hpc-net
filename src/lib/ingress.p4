@@ -75,7 +75,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
             
             // TODO: raise error
             // mark to drop?
-            meta.drop = true;
+            standard_metadata.egress_spec = 511;
 
         }
     }
