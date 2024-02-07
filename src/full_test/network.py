@@ -10,7 +10,7 @@ from lib.fattree import FatTreeTopo
 net = FatTreeTopo(loglevel="info")
 
 # build k-ary fat-tree
-K = 6
+K = 4
 net.setup(src="switch.p4", k=K)
 with open("runtime.p4", "w") as f:
     f.write(
@@ -40,7 +40,7 @@ for hname in net.ft_hosts:
 
 # this timeout will need to be
 # increased for larger k values
-time.sleep(30)
+time.sleep(10)
 
 net.start_net_cli()
 
