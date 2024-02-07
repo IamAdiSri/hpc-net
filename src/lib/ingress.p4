@@ -75,7 +75,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
             
             // TODO: raise error
             // mark to drop?
-            standard_metadata.egress_spec = 72;
+            meta.drop = true;
 
         }
     }
@@ -131,7 +131,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
 
             // TODO: raise error
             // mark to drop?
-            standard_metadata.egress_spec = 70;
+            standard_metadata.egress_spec = 511;
         }
         
     }
@@ -176,7 +176,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
             
             // TODO: raise error
             // mark to drop?
-            standard_metadata.egress_spec = 71;
+            standard_metadata.egress_spec = 511;
         }
     }
     
@@ -208,13 +208,13 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                     barc_p_rs();
                 }
                 else if (hdr.barc.BI.f0 == SPN_ID) { //  to spine switch
-
                     barc_p_ss();
                 }
                 else { // unknown switch type
+                
                     // TODO: raise error
                     // mark to drop?
-                    standard_metadata.egress_spec = 73;
+                    standard_metadata.egress_spec = 511;
                 }
 
                 // update switch address 
@@ -226,7 +226,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
 
                 // TODO: raise error
                 // mark to drop?
-                standard_metadata.egress_spec = 74;
+                standard_metadata.egress_spec = 511;
             }
         }
         else { // not barc
@@ -239,16 +239,16 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
             if (hdr.ethernet.dstAddr.f0 & 1 == 1) { // multicast
 
                 // TODO: multicast
-                // mark to drop
-                standard_metadata.egress_spec = 75;
+                // mark to drop?
+                standard_metadata.egress_spec = 511;
             }
             else { // unicast
                 
                 if (hdr.ethernet.dstAddr.f0 != HST_ID) {
                     
                     // TODO: unicast to another switch
-                    // mark to drop
-                    standard_metadata.egress_spec = 69;
+                    // mark to drop?
+                    standard_metadata.egress_spec = 511;
                 }
                 if (self_0 == RCK_ID) { // rack switch
 
@@ -281,7 +281,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                 
                     // TODO: raise error
                     // mark to drop?
-                    standard_metadata.egress_spec = 76;
+                    standard_metadata.egress_spec = 511;
                 }
             }
         }
