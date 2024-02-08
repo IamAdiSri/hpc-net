@@ -30,21 +30,32 @@ for switch_name in logs:
             retained.append(line)
         elif "hdr.ethernet.etherType == TYPE_BARC" in line:
             retained.append(line)
+        elif "] Source Address: " in line:
+            retained.append(line)
+        elif "] Destination Address: " in line:
+            retained.append(line)
         elif "Egress port is" in line:
             retained.append(line)
     logs[switch_name] = retained
+
+for l in logs["rck_0_0"]:
+    print(l)
 
 # make list of tuples
 for switch_name in logs:
     formatted = []
     l = len(logs[switch_name])
-    for i in range(0, l, 3):
+    for i in range(0, l, 5):
         ingress_line = logs[switch_name][i]
         type_line = logs[switch_name][i + 1]
-        egress_line = logs[switch_name][i + 2]
+        sa_line = logs[switch_name][i+2]
+        da_line = logs[switch_name][i+3]
+        egress_line = logs[switch_name][i + 4]
 
         ingress_line = ingress_line.split(" ")
         type_line = type_line.split(" ")
+        sa_line = sa_line.split(" ")
+        da_line = da_line.split(" ")
         egress_line = egress_line.split(" ")
         t = {
             "ingress_time": convert_time(ingress_line[0][1:-1]),
@@ -52,6 +63,8 @@ for switch_name in logs:
             "egress_time": convert_time(egress_line[0][1:-1]),
             "egress_port": int(egress_line[-1]),
             "type": "BARC" if type_line[-1] == "true" else "Payload",
+            "srcAddr": sa_line[-1],
+            "dstAddr": da_line[-1]
         }
         if t["egress_port"] != 511:
             formatted.append(t)

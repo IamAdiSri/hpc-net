@@ -8,7 +8,7 @@
 /* -*- P4_16 -*- */
 
 control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_metadata_t standard_metadata) {
-
+    
     // switch address placeholders
     bit<8> self_0;        // switch type
     bit<8> self_1;        // switch location field 1
@@ -181,6 +181,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     }
     
     apply {
+        
         if (hdr.ethernet.etherType == TYPE_BARC || 
             hdr.ethernet.dstAddr == BARC_DA) { // process BARC frame
 
@@ -285,5 +286,8 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                 }
             }
         }
+
+        log_msg("Source Address: {}:{}:{}:{}:{}:{}", hdr.ethernet.srcAddr);
+        log_msg("Destination Address: {}:{}:{}:{}:{}:{}", hdr.ethernet.dstAddr);
     }
 }

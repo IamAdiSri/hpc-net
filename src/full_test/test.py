@@ -154,7 +154,7 @@ def listen(intf=get_intf()):
         print("\n\n")
 
         if x.type == TYPE_BARC and x.S == BARC_P:
-            src_addr = ":".join([str(a) for a in x.BI])
+            src_addr = ":".join(["%02x"%a for a in x.BI])
             with open(f"outputs/addr_{intf.split('-')[0]}", "w") as f:
                 f.write(src_addr)
             print(f"Updated self address: {src_addr}")
