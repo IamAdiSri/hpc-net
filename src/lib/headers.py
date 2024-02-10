@@ -67,5 +67,5 @@ def deparser(pkt):
     Takes an arbitrary packet and deparses
     it to fit the CEther frame.
     """
-    
+
     return CEther(bytes(pkt))

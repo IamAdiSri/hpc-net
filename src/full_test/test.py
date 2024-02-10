@@ -20,6 +20,7 @@ from lib.constants import *
 from lib.headers import BARC, CEther, UNIC, deparser
 from lib.utils import *
 
+
 def get_intf():
     addrs = psutil.net_if_addrs()
     for i in addrs.keys():
@@ -27,9 +28,10 @@ def get_intf():
             return i
     return None
 
+
 def get_src_addr(intf=get_intf()):
     try:
-        with open(f"outputs/addr_{intf.split('-')[0]}", 'r') as f:
+        with open(f"outputs/addr_{intf.split('-')[0]}", "r") as f:
             src_addr = f.read()
         return src_addr
     except:
@@ -118,6 +120,7 @@ def test_bpss(intf=get_intf()):
     sendp(frame, iface=intf)
     print("\n\n")
 
+
 def test_unicast(dst, intf=get_intf()):
     """
     Test Unicast message
@@ -151,8 +154,8 @@ def listen(intf=get_intf()):
         print("\n\n")
 
         if x.type == TYPE_BARC and x.S == BARC_P:
-            src_addr = ":".join([str(a) for a in x.BI])
-            with open(f"outputs/addr_{intf.split('-')[0]}", 'w') as f:
+            src_addr = ":".join(["%02x"%a for a in x.BI])
+            with open(f"outputs/addr_{intf.split('-')[0]}", "w") as f:
                 f.write(src_addr)
             print(f"Updated self address: {src_addr}")
 
@@ -167,11 +170,7 @@ def listen(intf=get_intf()):
         return True
 
     # start asynchronous sniffer to log replies
-    t = AsyncSniffer(prn=lambda x: show(x), 
-                     store=False, 
-                     iface=intf,
-                     lfilter=lfilter
-        )
+    t = AsyncSniffer(prn=lambda x: show(x), store=False, iface=intf, lfilter=lfilter)
 
     t.start()
 

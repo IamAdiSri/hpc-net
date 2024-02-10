@@ -4,7 +4,8 @@
 
 
 def flip(p, k=4):
-    return (p + k//2) % k
+    return (p + k // 2) % k
+
 
 def build(k=4):
     npod = k  # number of pods
@@ -91,7 +92,7 @@ def build(k=4):
         for i, f in enumerate(fs):
             print(f"{r}:{flip(i, k)} --> {f}:{rid}")
     print("\n")
-    
+
     # connect spine switches to fabric switches
     print("Connecting spine switches to fabric switches!")
     for s in spn_switches:

@@ -14,7 +14,7 @@ K = 4
 net.setup(src="switch.p4", k=K)
 with open("runtime.p4", "w") as f:
     f.write(
-f"""/*
+        f"""/*
  * This file is generated dynamically at runtime.
  * DO NOT MAKE EDITS HERE AS THEY WILL BE OVERWRITTEN.
  */
