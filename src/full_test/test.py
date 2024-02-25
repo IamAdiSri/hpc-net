@@ -10,6 +10,7 @@ import os
 import sys
 import time
 import psutil
+import random
 
 from scapy.all import *
 from scapy.layers.l2 import *
@@ -20,6 +21,7 @@ from lib.constants import *
 from lib.headers import BARC, CEther, UNIC, deparser
 from lib.utils import *
 
+src_addr = None
 
 def get_intf():
     addrs = psutil.net_if_addrs()
@@ -30,12 +32,27 @@ def get_intf():
 
 
 def get_src_addr(intf=get_intf()):
-    try:
-        with open(f"outputs/addr_{intf.split('-')[0]}", "r") as f:
-            src_addr = f.read()
-        return src_addr
-    except:
-        src_addr = "00:00:00:00:00:00"
+    """
+    Generate a random source address
+    unless source address has already
+    been recorded (needed for tracking 
+    packets)
+    """
+    global src_addr
+    if not src_addr:
+        try:
+            with open(f"outputs/addr_{intf.split('-')[0]}", "r") as f:
+                src_addr = f.read()
+        except:
+            src_addr = ""
+            while len(src_addr) < 15:
+                src_addr += hex(random.randint(0, 15))[2:]
+                src_addr += hex(random.randint(0, 15))[2:]
+                src_addr += ":"
+            src_addr += hex(random.randint(0, 15))[2:]
+            src_addr += hex(random.randint(0, 15))[2:]
+
+    return src_addr
 
 
 def test_bi(intf=get_intf()):
