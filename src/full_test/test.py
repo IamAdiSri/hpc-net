@@ -23,6 +23,7 @@ from lib.utils import *
 
 src_addr = None
 
+
 def get_intf():
     addrs = psutil.net_if_addrs()
     for i in addrs.keys():
@@ -35,7 +36,7 @@ def get_src_addr(intf=get_intf()):
     """
     Generate a random source address
     unless source address has already
-    been recorded (needed for tracking 
+    been recorded (needed for tracking
     packets)
     """
     global src_addr
@@ -171,7 +172,7 @@ def listen(intf=get_intf()):
         print("\n\n")
 
         if x.type == TYPE_BARC and x.S == BARC_P:
-            src_addr = ":".join(["%02x"%a for a in x.BI])
+            src_addr = ":".join(["%02x" % a for a in x.BI])
             with open(f"outputs/addr_{intf.split('-')[0]}", "w") as f:
                 f.write(src_addr)
             print(f"Updated self address: {src_addr}")

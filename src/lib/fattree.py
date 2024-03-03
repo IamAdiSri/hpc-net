@@ -111,6 +111,6 @@ class FatTreeTopo(NetworkAPI):
         self.ft_switches = {
             "rck": rck_switches,
             "fab": fab_switches,
-            "spn": spn_switches
+            "spn": spn_switches,
         }
         self.ft_hosts = hosts

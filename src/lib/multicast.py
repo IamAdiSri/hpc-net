@@ -5,6 +5,7 @@
 
 from p4utils.utils.sswitch_thrift_API import SimpleSwitchThriftAPI
 
+
 def get_ports(b):
     curr = 0
     ports = []
@@ -17,13 +18,15 @@ def get_ports(b):
         curr += 1
     return ports
 
+
 def add_rules(g2p, thrift_port, thrift_ip="127.0.0.1"):
     controller = SimpleSwitchThriftAPI(thrift_port=thrift_port, thrift_ip=thrift_ip)
 
     for grp, ports in list(g2p.items())[1:]:
         controller.mc_mgrp_create(grp)
         controller.mc_node_create(0, ports)
-        controller.mc_node_associate(grp, grp-1)
+        controller.mc_node_associate(grp, grp - 1)
+
 
 def mcast_setup(K, net):
     # map group ids to ports
@@ -37,4 +40,3 @@ def mcast_setup(K, net):
 
     for sname in net.ft_switches["spn"]:
         add_rules(g2p, net.net.get(sname).thrift_port)
-    
