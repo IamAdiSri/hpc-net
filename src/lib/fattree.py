@@ -108,4 +108,9 @@ class FatTreeTopo(NetworkAPI):
                     self.setIntfPort(s, f, flip(fpid % (k // 2)))
                 self.setIntfPort(f, s, flip(port))
 
+        self.ft_switches = {
+            "rck": rck_switches,
+            "fab": fab_switches,
+            "spn": spn_switches
+        }
         self.ft_hosts = hosts
