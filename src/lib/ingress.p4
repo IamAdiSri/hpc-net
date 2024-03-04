@@ -195,107 +195,107 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     }
     
     apply {
-        
-        if (hdr.ethernet.etherType == TYPE_BARC || 
-            hdr.ethernet.dstAddr == NCB_DA) { // process BARC frame
-
-            if (hdr.barc.S == BARC_I) { // BARC Inquiry
-                barc_i_rs();
-            }
-            else if (hdr.barc.S == BARC_P) { // BARC Proposal
-
-                // load switch address
-                self.read(self_0, (bit<32>) 0);
-                self.read(self_1, (bit<32>) 1);
-                self.read(self_2, (bit<32>) 2);
-
-                if (hdr.barc.BI.f0 == FAB_ID) { // to fabric switch
-                    if (ingressDir) {
-                        // low port of ingress
-                        barc_p_fs_low();
-                    }
-                    else {
-                        // high port of ingress
-                        barc_p_fs_high();
-                    }
-                }
-                else if (hdr.barc.BI.f0 == RCK_ID) { // to rack switch
-                    barc_p_rs();
-                }
-                else if (hdr.barc.BI.f0 == SPN_ID) { //  to spine switch
-                    barc_p_ss();
-                }
-                else { // unknown switch type
                 
-                    // TODO: raise error
-                    // mark to drop?
-                    standard_metadata.egress_spec = 511;
-                }
+        if (hdr.ethernet.dstAddr.f0 == HST_ID) { // unicast
 
-                // update switch address 
-                self.write((bit<32>) 0, self_0);
-                self.write((bit<32>) 1, self_1);
-                self.write((bit<32>) 2, self_2);
-            }
-            else { // unknown BARC type
-
-                // TODO: raise error
-                // mark to drop?
-                standard_metadata.egress_spec = 511;
-            }
-        }
-        else { // not barc
-            
             // load switch address
             self.read(self_0, (bit<32>) 0);
             self.read(self_1, (bit<32>) 1);
             self.read(self_2, (bit<32>) 2);
 
-            if (hdr.ethernet.dstAddr.f0 & 1 == 1) { // multicast
+            if (self_0 == RCK_ID) { // rack switch
 
-                // TODO: multicast
-                // mark to drop?
+                if (hdr.ethernet.dstAddr.f1 == self_1 &&
+                    hdr.ethernet.dstAddr.f2 == self_2) {
+                    
+                    standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f3;
+                }
+                else {
+
+                    standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f5 + TREE_K/2;
+                }
+            }
+            else if (self_0 == FAB_ID) { // fabric switch
+
+                if (hdr.ethernet.dstAddr.f1 == self_1) {
+                    
+                    standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f2;
+                }
+                else {
+                    
+                    standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f4 + TREE_K/2;
+                }
+            }
+            else if (self_0 == SPN_ID) { // spine switch
+
+                standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f1;
+            }
+            else { // unknown switch
+
+                log_msg("ERROR: Unicast to unknown switch ID; dropping packet.");
                 standard_metadata.egress_spec = 511;
             }
-            else { // unicast
-                
-                if (hdr.ethernet.dstAddr.f0 != HST_ID) {
-                    
-                    // TODO: unicast to another switch
-                    // mark to drop?
+        }
+        else if (hdr.ethernet.dstAddr.f0 & 1 == 1) { // multicast
+
+            if (hdr.ethernet.dstAddr.f0 == (SPN_ID & 1)) { // multicast forwarding
+                // TODO
+                standard_metadata.egress_spec = 511;
+            }
+            else if (hdr.ethernet.dstAddr == NCB_DA) { // special multicast
+
+                if (hdr.ethernet.etherType == TYPE_BARC) { // BARC
+
+                    if (hdr.barc.S == BARC_I) { // BARC Inquiry
+                        barc_i_rs();
+                    }
+                    else if (hdr.barc.S == BARC_P) { // BARC Proposal
+
+                        // load switch address
+                        self.read(self_0, (bit<32>) 0);
+                        self.read(self_1, (bit<32>) 1);
+                        self.read(self_2, (bit<32>) 2);
+
+                        if (hdr.barc.BI.f0 == FAB_ID) { // to fabric switch
+                            if (ingressDir) {
+                                // low port of ingress
+                                barc_p_fs_low();
+                            }
+                            else {
+                                // high port of ingress
+                                barc_p_fs_high();
+                            }
+                        }
+                        else if (hdr.barc.BI.f0 == RCK_ID) { // to rack switch
+                            barc_p_rs();
+                        }
+                        else if (hdr.barc.BI.f0 == SPN_ID) { //  to spine switch
+                            barc_p_ss();
+                        }
+                        else { // unknown switch type
+                        
+                            log_msg("ERROR: BARC multicast to unknown switch ID; dropping packet.");
+                            standard_metadata.egress_spec = 511;
+                        }
+
+                        // update switch address 
+                        self.write((bit<32>) 0, self_0);
+                        self.write((bit<32>) 1, self_1);
+                        self.write((bit<32>) 2, self_2);
+                    }
+                    else { // unknown BARC subtype
+
+                        log_msg("ERROR: Unknown BARC subtype; dropping packet.");
+                        standard_metadata.egress_spec = 511;
+                    }
+                }
+                else if (hdr.ethernet.etherType == TYPE_CORE) { // Collective Registration (CoRe)
+
+                    // TODO
                     standard_metadata.egress_spec = 511;
                 }
-                if (self_0 == RCK_ID) { // rack switch
-
-                    if (hdr.ethernet.dstAddr.f1 == self_1 &&
-                        hdr.ethernet.dstAddr.f2 == self_2) {
-                        
-                        standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f3;
-                    }
-                    else {
-
-                        standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f5 + TREE_K/2;
-                    }
-                }
-                else if (self_0 == FAB_ID) { // fabric switch
-
-                    if (hdr.ethernet.dstAddr.f1 == self_1) {
-                        
-                        standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f2;
-                    }
-                    else {
-                        
-                        standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f4 + TREE_K/2;
-                    }
-                }
-                else if (self_0 == SPN_ID) { // spine switch
-
-                    standard_metadata.egress_spec = (bit<9>) hdr.ethernet.dstAddr.f1;
-                }
-                else { // unknown switch
-                
-                    // TODO: raise error
-                    // mark to drop?
+                else { // unknown etherType
+                    log_msg("ERROR: Multicast to unknown ethertype; dropping packet.");
                     standard_metadata.egress_spec = 511;
                 }
             }

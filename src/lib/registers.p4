@@ -7,5 +7,5 @@
 
 /* -*- P4_16 -*- */
 
-// Three 8-bit registers for global addressing
+// Three 8-bit registers for global addressing (ABI)
 register<bit<8>>(3) self;

@@ -7,8 +7,9 @@
 
 /* -*- P4_16 -*- */
 
-// frame types
+// frame etherTypes
 const bit<16> TYPE_BARC = 0x22F0; // BARC frame 0b0010001011110000
+const bit<16> TYPE_CORE = 0x88B6; // CORE frame 0b1000100010110110
 const bit<16> TYPE_UNIC = 0x22F1; // Unicast frame 0b0010001011110001
 
 // Nearest Customer Bridge (NCB) address
@@ -21,9 +22,12 @@ const addr_t NCB_DA = {
     f5 = 0x00
 };
 
-// BARC constants
+// BARC subtypes
 const bit<4>  BARC_I  = 0xA;
 const bit<4>  BARC_P  = 0xB;
+
+// CORE subtypes
+const bit<4> CORE_S = 0x0000;
 
 // node identifiers
 const bit<8> SPN_ID = 0xBE; // Spine identifier 0b10111110
