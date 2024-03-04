@@ -193,6 +193,26 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
             standard_metadata.egress_spec = 511;
         }
     }
+
+    action multicast_to_group(bit<4> mc_group) {
+        // TODO
+        log_msg("LOG: Entered multicast_to_group.");
+    }
+
+    table mc_table {
+        key = {
+            hdr.ethernet.dstAddr.f0 : exact;
+            hdr.ethernet.dstAddr.f1 : exact;
+            hdr.ethernet.dstAddr.f2 : exact;
+            hdr.ethernet.dstAddr.f3 : exact;
+            hdr.ethernet.dstAddr.f4 : exact;
+            hdr.ethernet.dstAddr.f5 : exact;
+        }
+        actions = {
+            multicast_to_group;
+        }
+        // size = 1024;
+    }
     
     apply {
                 
@@ -232,15 +252,21 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
             }
             else { // unknown switch
 
-                log_msg("ERROR: Unicast to unknown switch ID; dropping packet.");
+                log_msg("ERROR: Unknown unicast switch ID; packet dropped.");
                 standard_metadata.egress_spec = 511;
             }
         }
         else if (hdr.ethernet.dstAddr.f0 & 1 == 1) { // multicast
 
-            if (hdr.ethernet.dstAddr.f0 == (SPN_ID & 1)) { // multicast forwarding
+            if (hdr.ethernet.dstAddr.f0 == (SPN_ID | 1)) { // multicast forwarding
                 // TODO
-                standard_metadata.egress_spec = 511;
+                if (mc_table.apply().hit) { // found match
+
+                }
+                else { // no match found
+                    log_msg("WARNING: Did not find a match for the multicast address; packet dropped.");
+                    standard_metadata.egress_spec = 511;
+                }
             }
             else if (hdr.ethernet.dstAddr == NCB_DA) { // special multicast
 
@@ -274,7 +300,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                         }
                         else { // unknown switch type
                         
-                            log_msg("ERROR: BARC multicast to unknown switch ID; dropping packet.");
+                            log_msg("ERROR: Unknown BARC switch ID; packet dropped.");
                             standard_metadata.egress_spec = 511;
                         }
 
@@ -285,17 +311,18 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                     }
                     else { // unknown BARC subtype
 
-                        log_msg("ERROR: Unknown BARC subtype; dropping packet.");
+                        log_msg("ERROR: Unknown BARC subtype; packet dropped.");
                         standard_metadata.egress_spec = 511;
                     }
                 }
                 else if (hdr.ethernet.etherType == TYPE_CORE) { // Collective Registration (CoRe)
 
                     // TODO
+                    log_msg("WARNING: Collective Registration is yet to be implemented; packet dropped.");
                     standard_metadata.egress_spec = 511;
                 }
                 else { // unknown etherType
-                    log_msg("ERROR: Multicast to unknown ethertype; dropping packet.");
+                    log_msg("ERROR: Unknown multicast ethertype; packet dropped.");
                     standard_metadata.egress_spec = 511;
                 }
             }

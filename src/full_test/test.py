@@ -18,7 +18,7 @@ from scapy.layers.l2 import *
 sys.path.append(os.path.join(sys.path[0], ".."))
 
 from lib.constants import *
-from lib.headers import BARC, CEther, UNIC, deparser
+from lib.headers import BARC, CEther, deparser
 from lib.utils import *
 
 src_addr = None
@@ -45,15 +45,16 @@ def get_src_addr(intf=get_intf()):
             with open(f"outputs/addr_{intf.split('-')[0]}", "r") as f:
                 src_addr = f.read()
         except:
-            src_addr = ""
-            while len(src_addr) < 15:
-                src_addr += hex(random.randint(0, 15))[2:]
-                src_addr += hex(random.randint(0, 15))[2:]
-                src_addr += ":"
-            src_addr += hex(random.randint(0, 15))[2:]
-            src_addr += hex(random.randint(0, 15))[2:]
-
+            temp_src_addr = "ae:"
+            while len(temp_src_addr) < 15:
+                temp_src_addr += hex(random.randint(0, 15))[2:]
+                temp_src_addr += hex(random.randint(0, 15))[2:]
+                temp_src_addr += ":"
+            temp_src_addr += hex(random.randint(0, 15))[2:]
+            temp_src_addr += hex(random.randint(0, 15))[2:]
+            return temp_src_addr
     return src_addr
+
 
 
 def test_bi(intf=get_intf()):
@@ -145,7 +146,7 @@ def test_unicast(dst, intf=get_intf()):
     """
 
     # make UNIC frame
-    ether = CEther(dst=dst, src=get_src_addr(), type=TYPE_UNIC)
+    ether = CEther(dst=dst, src=get_src_addr())
 
     # compile and display complete frame
     frame = ether / f"message from {intf.split('-')[0]}"
@@ -155,6 +156,21 @@ def test_unicast(dst, intf=get_intf()):
     sendp(frame, iface=intf)
     print("\n\n")
 
+def test_multicast(dst, intf=get_intf()):
+    """
+    Test Multicast message
+    """
+
+    # make multicast frame
+    ether = CEther(dst=dst, src=get_src_addr())
+
+    # compile and display complete frame
+    frame = ether / f"message from {intf.split('-')[0]}"
+    print("\nSending MULTICAST frame:")
+    frame.show()
+    # ls(frame)
+    sendp(frame, iface=intf)
+    print("\n\n")
 
 captures = []
 
@@ -164,6 +180,7 @@ def listen(intf=get_intf()):
     Listen for incoming packets
     """
 
+    global src_addr
     def show(x):
         print("Received frames:")
         x = deparser(x)
@@ -183,7 +200,7 @@ def listen(intf=get_intf()):
         x = deparser(x)
         if x.type == TYPE_BARC and x.S == BARC_I:
             return False
-        if x.type == TYPE_UNIC and x.src == get_src_addr():
+        elif x.src == get_src_addr():
             return False
         return True
 

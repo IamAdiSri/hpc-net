@@ -32,6 +32,11 @@ def add_mcast_rules(g2p, thrift_port, thrift_ip="127.0.0.1"):
         node_handle = controller.mc_node_create(0, ports)
         controller.mc_node_associate(grp, node_handle)
 
+def setup_sample_mcast(thrift_port=9098):
+    # rck_0_0
+    controller = SimpleSwitchThriftAPI(thrift_port=thrift_port)
+    controller.table_add("SFZSIngress.mc_table", "SFZSIngress.multicast_to_group", ['0xBF', '0x01', '0x00', '0x00', '0x00', '0x01'], ['0b0111'])
+
 
 def mcast_setup(K, net):
     # map group ids to ports
