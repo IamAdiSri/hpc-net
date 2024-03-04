@@ -3,10 +3,10 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
+import datetime
+import json
 import os
 import sys
-import json
-import datetime
 
 
 def convert_time(timestamp):

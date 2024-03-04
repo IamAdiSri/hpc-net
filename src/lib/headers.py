@@ -3,15 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from scapy.fields import (
-    BitEnumField,
-    BitField,
-    FieldListField,
-    MACField,
-    StrField,
-    XByteField,
-    XShortEnumField,
-)
+from scapy.fields import (BitEnumField, BitField, FieldListField, MACField,
+                          StrField, XByteField, XShortEnumField)
 from scapy.packet import Packet, bind_layers
 
 from lib.constants import *
@@ -63,6 +56,7 @@ class CORE(Packet):
         BitField("BA", 0x000000000000, 48),
         BitField("Info", 0x000000000000, 48),
     ]
+
 
 bind_layers(CEther, BARC, type=TYPE_BARC)
 bind_layers(CEther, CORE, type=TYPE_CORE)

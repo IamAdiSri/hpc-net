@@ -10,7 +10,7 @@ import time
 sys.path.append(os.path.join(sys.path[0], ".."))
 
 from lib.fattree import FatTreeTopo
-from lib.multicast import mcast_setup
+from lib.multicast import setup_example, setup_mcast
 
 # initialize network
 net = FatTreeTopo(loglevel="info")
@@ -39,8 +39,11 @@ net.enableLogAll()
 net.disableCli()
 net.startNetwork()
 
-# setup static rules in mcast table
-mcast_setup(K, net)
+# setup mcast groups
+setup_mcast(K, net)
+
+# setup example entries mcast table
+setup_example(K, net)
 
 threads = []
 for hname in net.ft_hosts:

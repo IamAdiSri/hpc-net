@@ -25,9 +25,6 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     // egress port
     bit<8> egressPort;
 
-    // egress Vector for multicast
-    // bit<TREE_K> egressVector;
-
     action drop() {
         // sets egress port to 511 unless specified 
         // otherwise with the --drop-port flag
@@ -194,9 +191,8 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
         }
     }
 
-    action multicast_to_group(bit<4> mc_group) {
-        // TODO
-        log_msg("LOG: Entered multicast_to_group.");
+    action multicast_to_group(bit<16> mc_group) {
+        standard_metadata.mcast_grp = mc_group;
     }
 
     table mc_table {
@@ -207,6 +203,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
             hdr.ethernet.dstAddr.f3 : exact;
             hdr.ethernet.dstAddr.f4 : exact;
             hdr.ethernet.dstAddr.f5 : exact;
+            ingressPort: exact;
         }
         actions = {
             multicast_to_group;
@@ -260,10 +257,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
 
             if (hdr.ethernet.dstAddr.f0 == (SPN_ID | 1)) { // multicast forwarding
                 // TODO
-                if (mc_table.apply().hit) { // found match
-
-                }
-                else { // no match found
+                if (!mc_table.apply().hit) { // no match found
                     log_msg("WARNING: Did not find a match for the multicast address; packet dropped.");
                     standard_metadata.egress_spec = 511;
                 }

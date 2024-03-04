@@ -7,11 +7,11 @@
 
 import argparse
 import os
+import random
 import sys
 import time
-import psutil
-import random
 
+import psutil
 from scapy.all import *
 from scapy.layers.l2 import *
 
@@ -54,7 +54,6 @@ def get_src_addr(intf=get_intf()):
             temp_src_addr += hex(random.randint(0, 15))[2:]
             return temp_src_addr
     return src_addr
-
 
 
 def test_bi(intf=get_intf()):
@@ -156,6 +155,7 @@ def test_unicast(dst, intf=get_intf()):
     sendp(frame, iface=intf)
     print("\n\n")
 
+
 def test_multicast(dst, intf=get_intf()):
     """
     Test Multicast message
@@ -172,6 +172,7 @@ def test_multicast(dst, intf=get_intf()):
     sendp(frame, iface=intf)
     print("\n\n")
 
+
 captures = []
 
 
@@ -181,6 +182,7 @@ def listen(intf=get_intf()):
     """
 
     global src_addr
+
     def show(x):
         print("Received frames:")
         x = deparser(x)

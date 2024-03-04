@@ -5,7 +5,8 @@
 
 # frame etherTypes
 TYPE_BARC = 0x22F0  # BARC frame 0b0010001011110000
-TYPE_CORE = 0x88B6; # CORE frame 0b1000100010110110
+TYPE_CORE = 0x88B6
+# CORE frame 0b1000100010110110
 
 # Nearest Customer Bridge (NCB) address
 NCB_DA = 0x0180C2000000
