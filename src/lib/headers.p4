@@ -33,13 +33,26 @@ header barc_t{
     addr_t  BI;
     bit<48> BA;
     bit<48> Info;
+    // TODO: FCS field
+}
 
+// core header
+header core_t{
+    bit<8>  subtype;
+    addr_t  CA;
+    // TODO: FCS field
+}
+
+// combined special headers
+header_union proto_t {
+    barc_t barc;
+    core_t core;
 }
 
 // complete packet header
 struct headers {
     ethernet_t ethernet;
-    barc_t     barc;
+    proto_t proto;
 }
 
 // metadata

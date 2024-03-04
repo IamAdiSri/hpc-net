@@ -10,6 +10,6 @@
 control SFZSDeparser(packet_out packet, in headers hdr) {
     apply {
         packet.emit(hdr.ethernet);
-        packet.emit(hdr.barc);        
+        packet.emit(hdr.proto);
     }
 }

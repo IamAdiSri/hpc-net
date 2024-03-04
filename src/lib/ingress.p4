@@ -42,13 +42,13 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
         egressPort = ingressPort + TREE_K/2;
 
         // modify frame
-        hdr.barc.S = BARC_P;
-        hdr.barc.BI.f0 = FAB_ID;
-        hdr.barc.BI.f1 = 0;
-        hdr.barc.BI.f2 = ingressPort;
-        hdr.barc.BI.f3 = 0;
-        hdr.barc.BI.f4 = 0;
-        hdr.barc.BI.f5 = 0xFF;
+        hdr.proto.barc.S = BARC_P;
+        hdr.proto.barc.BI.f0 = FAB_ID;
+        hdr.proto.barc.BI.f1 = 0;
+        hdr.proto.barc.BI.f2 = ingressPort;
+        hdr.proto.barc.BI.f3 = 0;
+        hdr.proto.barc.BI.f4 = 0;
+        hdr.proto.barc.BI.f5 = 0xFF;
 
         // set egress port
         standard_metadata.egress_spec = (bit <9>) egressPort;
@@ -57,27 +57,27 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     action barc_p_rs() {
 
         if (self_0 == 0x00 || 
-            (self_0 == hdr.barc.BI.f0 &&
-             self_1 == hdr.barc.BI.f1 &&
-             self_2 == hdr.barc.BI.f2)) { // address hasn't been set or 
+            (self_0 == hdr.proto.barc.BI.f0 &&
+             self_1 == hdr.proto.barc.BI.f1 &&
+             self_2 == hdr.proto.barc.BI.f2)) { // address hasn't been set or 
                                           // has been set correctly
             
             // calculate egress port
             egressPort = ingressPort - TREE_K/2;
             
             // set address
-            self_0 = hdr.barc.BI.f0;
-            self_1 = hdr.barc.BI.f1;
-            self_2 = hdr.barc.BI.f2;
+            self_0 = hdr.proto.barc.BI.f0;
+            self_1 = hdr.proto.barc.BI.f1;
+            self_2 = hdr.proto.barc.BI.f2;
 
             // modify frame
-            hdr.barc.S = BARC_P;
-            hdr.barc.BI.f0 = HST_ID;
-            hdr.barc.BI.f1 = self_1;
-            hdr.barc.BI.f2 = self_2;
-            hdr.barc.BI.f3 = egressPort;
-            hdr.barc.BI.f4 = 0;
-            hdr.barc.BI.f5 = 0;
+            hdr.proto.barc.S = BARC_P;
+            hdr.proto.barc.BI.f0 = HST_ID;
+            hdr.proto.barc.BI.f1 = self_1;
+            hdr.proto.barc.BI.f2 = self_2;
+            hdr.proto.barc.BI.f3 = egressPort;
+            hdr.proto.barc.BI.f4 = 0;
+            hdr.proto.barc.BI.f5 = 0;
 
             // set egress port
             standard_metadata.egress_spec = (bit <9>) egressPort;
@@ -97,13 +97,13 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
         egressPort = ingressPort + TREE_K/2;
 
         // modify frame
-        hdr.barc.S = BARC_P;
-        hdr.barc.BI.f0 = SPN_ID;
-        hdr.barc.BI.f1 = ingressPort;
-        hdr.barc.BI.f2 = self_2;
-        hdr.barc.BI.f3 = 0;
-        hdr.barc.BI.f4 = 0;
-        hdr.barc.BI.f5 = 0;
+        hdr.proto.barc.S = BARC_P;
+        hdr.proto.barc.BI.f0 = SPN_ID;
+        hdr.proto.barc.BI.f1 = ingressPort;
+        hdr.proto.barc.BI.f2 = self_2;
+        hdr.proto.barc.BI.f3 = 0;
+        hdr.proto.barc.BI.f4 = 0;
+        hdr.proto.barc.BI.f5 = 0;
 
         // set egress port
         standard_metadata.egress_spec = (bit <9>) egressPort;
@@ -112,9 +112,9 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     action barc_p_fs_high() {
 
         if (self_0 == 0x00 || 
-           (self_0 == hdr.barc.BI.f0 &&
-            self_1 == hdr.barc.BI.f1 &&
-            self_2 == hdr.barc.BI.f2)) {
+           (self_0 == hdr.proto.barc.BI.f0 &&
+            self_1 == hdr.proto.barc.BI.f1 &&
+            self_2 == hdr.proto.barc.BI.f2)) {
                         // address hasn't been set or 
                         // has been set correctly
             
@@ -122,18 +122,18 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
             egressPort = ingressPort - TREE_K/2;
 
             // set address
-            self_0 = hdr.barc.BI.f0;
-            self_1 = hdr.barc.BI.f1;
-            self_2 = hdr.barc.BI.f2;
+            self_0 = hdr.proto.barc.BI.f0;
+            self_1 = hdr.proto.barc.BI.f1;
+            self_2 = hdr.proto.barc.BI.f2;
 
             // modify frame
-            hdr.barc.S = BARC_P;
-            hdr.barc.BI.f0 = RCK_ID;
-            hdr.barc.BI.f1 = self_1;
-            hdr.barc.BI.f2 = egressPort;
-            hdr.barc.BI.f3 = 0;
-            hdr.barc.BI.f4 = 0;
-            hdr.barc.BI.f5 = 0;
+            hdr.proto.barc.S = BARC_P;
+            hdr.proto.barc.BI.f0 = RCK_ID;
+            hdr.proto.barc.BI.f1 = self_1;
+            hdr.proto.barc.BI.f2 = egressPort;
+            hdr.proto.barc.BI.f3 = 0;
+            hdr.proto.barc.BI.f4 = 0;
+            hdr.proto.barc.BI.f5 = 0;
 
             // set egress port
             standard_metadata.egress_spec = (bit <9>) egressPort;
@@ -150,9 +150,9 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     action barc_p_ss() {
         
         if (self_0 == 0x00 || 
-           (self_0 == hdr.barc.BI.f0 &&
-            self_1 == hdr.barc.BI.f1 &&
-            self_2 == hdr.barc.BI.f2)) {
+           (self_0 == hdr.proto.barc.BI.f0 &&
+            self_1 == hdr.proto.barc.BI.f1 &&
+            self_2 == hdr.proto.barc.BI.f2)) {
                             // address hasn't been set or 
                             // has been set correctly
             
@@ -167,18 +167,18 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
             }
 
             // set address
-            self_0 = hdr.barc.BI.f0;
-            self_1 = hdr.barc.BI.f1;
-            self_2 = hdr.barc.BI.f2;
+            self_0 = hdr.proto.barc.BI.f0;
+            self_1 = hdr.proto.barc.BI.f1;
+            self_2 = hdr.proto.barc.BI.f2;
 
             // modify frame
-            hdr.barc.S = BARC_P;
-            hdr.barc.BI.f0 = FAB_ID;
-            hdr.barc.BI.f1 = egressPort;
-            hdr.barc.BI.f2 = self_2;
-            hdr.barc.BI.f3 = 0;
-            hdr.barc.BI.f4 = 0;
-            hdr.barc.BI.f5 = 0;
+            hdr.proto.barc.S = BARC_P;
+            hdr.proto.barc.BI.f0 = FAB_ID;
+            hdr.proto.barc.BI.f1 = egressPort;
+            hdr.proto.barc.BI.f2 = self_2;
+            hdr.proto.barc.BI.f3 = 0;
+            hdr.proto.barc.BI.f4 = 0;
+            hdr.proto.barc.BI.f5 = 0;
 
             // set egress port
             standard_metadata.egress_spec = (bit <9>) egressPort;
@@ -266,17 +266,17 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
 
                 if (hdr.ethernet.etherType == TYPE_BARC) { // BARC
 
-                    if (hdr.barc.S == BARC_I) { // BARC Inquiry
+                    if (hdr.proto.barc.S == BARC_I) { // BARC Inquiry
                         barc_i_rs();
                     }
-                    else if (hdr.barc.S == BARC_P) { // BARC Proposal
+                    else if (hdr.proto.barc.S == BARC_P) { // BARC Proposal
 
                         // load switch address
                         self.read(self_0, (bit<32>) 0);
                         self.read(self_1, (bit<32>) 1);
                         self.read(self_2, (bit<32>) 2);
 
-                        if (hdr.barc.BI.f0 == FAB_ID) { // to fabric switch
+                        if (hdr.proto.barc.BI.f0 == FAB_ID) { // to fabric switch
                             if (ingressDir) {
                                 // low port of ingress
                                 barc_p_fs_low();
@@ -286,10 +286,10 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                                 barc_p_fs_high();
                             }
                         }
-                        else if (hdr.barc.BI.f0 == RCK_ID) { // to rack switch
+                        else if (hdr.proto.barc.BI.f0 == RCK_ID) { // to rack switch
                             barc_p_rs();
                         }
-                        else if (hdr.barc.BI.f0 == SPN_ID) { //  to spine switch
+                        else if (hdr.proto.barc.BI.f0 == SPN_ID) { //  to spine switch
                             barc_p_ss();
                         }
                         else { // unknown switch type
