@@ -7,18 +7,21 @@
 
 import argparse
 import os
+import random
 import sys
 import time
-import psutil
 
+import psutil
 from scapy.all import *
 from scapy.layers.l2 import *
 
 sys.path.append(os.path.join(sys.path[0], ".."))
 
 from lib.constants import *
-from lib.headers import BARC, CEther, UNIC, deparser
+from lib.headers import BARC, CEther, deparser
 from lib.utils import *
+
+src_addr = None
 
 
 def get_intf():
@@ -30,12 +33,27 @@ def get_intf():
 
 
 def get_src_addr(intf=get_intf()):
-    try:
-        with open(f"outputs/addr_{intf.split('-')[0]}", "r") as f:
-            src_addr = f.read()
-        return src_addr
-    except:
-        src_addr = "00:00:00:00:00:00"
+    """
+    Generate a random source address
+    unless source address has already
+    been recorded (needed for tracking
+    packets)
+    """
+    global src_addr
+    if not src_addr:
+        try:
+            with open(f"outputs/addr_{intf.split('-')[0]}", "r") as f:
+                src_addr = f.read()
+        except:
+            temp_src_addr = "ae:"
+            while len(temp_src_addr) < 15:
+                temp_src_addr += hex(random.randint(0, 15))[2:]
+                temp_src_addr += hex(random.randint(0, 15))[2:]
+                temp_src_addr += ":"
+            temp_src_addr += hex(random.randint(0, 15))[2:]
+            temp_src_addr += hex(random.randint(0, 15))[2:]
+            return temp_src_addr
+    return src_addr
 
 
 def test_bi(intf=get_intf()):
@@ -46,7 +64,7 @@ def test_bi(intf=get_intf()):
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
-    ether = CEther(dst=xtos(BARC_DA), src=get_src_addr(), type=TYPE_BARC)
+    ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
     # make BARC frame
     barc = BARC(S=BARC_I, BI=[HST_ID, 0x00, 0x00, 0x00, 0x00, 0x00])
@@ -64,7 +82,7 @@ def test_bprs(intf=get_intf()):
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
-    ether = CEther(dst=xtos(BARC_DA), src=get_src_addr(), type=TYPE_BARC)
+    ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
     # make BARC frame
     barc = BARC(S=BARC_P, BI=[RCK_ID, 0x01, 0x02, 0x03, 0x04, 0x05])
@@ -86,7 +104,7 @@ def test_bpfs(intf=get_intf()):
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
-    ether = CEther(dst=xtos(BARC_DA), src=get_src_addr(), type=TYPE_BARC)
+    ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
     # make BARC frame
     barc = BARC(S=BARC_P, BI=[FAB_ID, 0x01, 0x02, 0x03, 0x04, 0x05])
@@ -106,7 +124,7 @@ def test_bpss(intf=get_intf()):
     """
 
     # make BARC frame
-    ether = CEther(dst=xtos(BARC_DA), src=get_src_addr(), type=TYPE_BARC)
+    ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
     # make BARC inquiry frame with the first
     # field in BI set to host identifier
@@ -127,11 +145,28 @@ def test_unicast(dst, intf=get_intf()):
     """
 
     # make UNIC frame
-    ether = CEther(dst=dst, src=get_src_addr(), type=TYPE_UNIC)
+    ether = CEther(dst=dst, src=get_src_addr())
 
     # compile and display complete frame
     frame = ether / f"message from {intf.split('-')[0]}"
     print("\nSending UNICAST frame:")
+    frame.show()
+    # ls(frame)
+    sendp(frame, iface=intf)
+    print("\n\n")
+
+
+def test_multicast(dst, intf=get_intf()):
+    """
+    Test Multicast message
+    """
+
+    # make multicast frame
+    ether = CEther(dst=dst, src=get_src_addr())
+
+    # compile and display complete frame
+    frame = ether / f"message from {intf.split('-')[0]}"
+    print("\nSending MULTICAST frame:")
     frame.show()
     # ls(frame)
     sendp(frame, iface=intf)
@@ -146,6 +181,8 @@ def listen(intf=get_intf()):
     Listen for incoming packets
     """
 
+    global src_addr
+
     def show(x):
         print("Received frames:")
         x = deparser(x)
@@ -154,7 +191,7 @@ def listen(intf=get_intf()):
         print("\n\n")
 
         if x.type == TYPE_BARC and x.S == BARC_P:
-            src_addr = ":".join(["%02x"%a for a in x.BI])
+            src_addr = ":".join(["%02x" % a for a in x.BI])
             with open(f"outputs/addr_{intf.split('-')[0]}", "w") as f:
                 f.write(src_addr)
             print(f"Updated self address: {src_addr}")
@@ -165,7 +202,7 @@ def listen(intf=get_intf()):
         x = deparser(x)
         if x.type == TYPE_BARC and x.S == BARC_I:
             return False
-        if x.type == TYPE_UNIC and x.src == get_src_addr():
+        elif x.src == get_src_addr():
             return False
         return True
 

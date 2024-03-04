@@ -1,3 +1,8 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+
 import os
 import sys
 import time
@@ -5,13 +10,13 @@ import time
 sys.path.append(os.path.join(sys.path[0], ".."))
 
 from lib.fattree import FatTreeTopo
+from lib.multicast import setup_example, setup_mcast
 
 # initialize network
 net = FatTreeTopo(loglevel="info")
 
 # build k-ary fat-tree
 K = 4
-net.setup(src="switch.p4", k=K)
 with open("runtime.p4", "w") as f:
     f.write(
         f"""/*
@@ -24,6 +29,7 @@ with open("runtime.p4", "w") as f:
 
 const int TREE_K={bin(K)};"""
     )
+net.setup(src="switch.p4", k=K)
 
 # enable logging
 net.enablePcapDumpAll()
@@ -32,6 +38,12 @@ net.enableLogAll()
 # disable CLI and start network
 net.disableCli()
 net.startNetwork()
+
+# setup mcast groups
+setup_mcast(K, net)
+
+# setup example entries mcast table
+setup_example(K, net)
 
 threads = []
 for hname in net.ft_hosts:

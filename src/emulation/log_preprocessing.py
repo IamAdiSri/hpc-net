@@ -1,7 +1,12 @@
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+
+import datetime
+import json
 import os
 import sys
-import json
-import datetime
 
 
 def convert_time(timestamp):
@@ -48,8 +53,8 @@ for switch_name in logs:
     for i in range(0, l, 5):
         ingress_line = logs[switch_name][i]
         type_line = logs[switch_name][i + 1]
-        sa_line = logs[switch_name][i+2]
-        da_line = logs[switch_name][i+3]
+        sa_line = logs[switch_name][i + 2]
+        da_line = logs[switch_name][i + 3]
         egress_line = logs[switch_name][i + 4]
 
         ingress_line = ingress_line.split(" ")
@@ -64,7 +69,7 @@ for switch_name in logs:
             "egress_port": int(egress_line[-1]),
             "type": "BARC" if type_line[-1] == "true" else "Payload",
             "srcAddr": sa_line[-1],
-            "dstAddr": da_line[-1]
+            "dstAddr": da_line[-1],
         }
         if t["egress_port"] != 511:
             formatted.append(t)
