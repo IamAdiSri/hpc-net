@@ -25,6 +25,20 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     // egress port
     bit<8> egressPort;
 
+    // egress Vector for multicast
+    // bit<TREE_K> egressVector;
+
+    action drop() {
+        // sets egress port to 511 unless specified 
+        // otherwise with the --drop-port flag
+        
+        // same as the following:
+        // standard_metadata.egress_spec = 511;
+
+
+        mark_to_drop(standard_metadata);
+    }
+
     action barc_i_rs() {
         
         // calculate egress port
@@ -183,7 +197,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     apply {
         
         if (hdr.ethernet.etherType == TYPE_BARC || 
-            hdr.ethernet.dstAddr == BARC_DA) { // process BARC frame
+            hdr.ethernet.dstAddr == NCB_DA) { // process BARC frame
 
             if (hdr.barc.S == BARC_I) { // BARC Inquiry
                 barc_i_rs();

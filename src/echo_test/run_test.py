@@ -18,7 +18,7 @@ def barc_init(hname):
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
-    ether = CEther(dst=xtos(BARC_DA), type=TYPE_BARC)
+    ether = CEther(dst=xtos(NCB_DA), type=TYPE_BARC)
 
     # make BARC inquiry frame with the first
     # field in BI set to host identifier

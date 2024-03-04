@@ -64,7 +64,7 @@ def test_bi(intf=get_intf()):
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
-    ether = CEther(dst=xtos(BARC_DA), src=get_src_addr(), type=TYPE_BARC)
+    ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
     # make BARC frame
     barc = BARC(S=BARC_I, BI=[HST_ID, 0x00, 0x00, 0x00, 0x00, 0x00])
@@ -82,7 +82,7 @@ def test_bprs(intf=get_intf()):
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
-    ether = CEther(dst=xtos(BARC_DA), src=get_src_addr(), type=TYPE_BARC)
+    ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
     # make BARC frame
     barc = BARC(S=BARC_P, BI=[RCK_ID, 0x01, 0x02, 0x03, 0x04, 0x05])
@@ -104,7 +104,7 @@ def test_bpfs(intf=get_intf()):
     # make CEther frame with dest MAC set to
     # special BARC address and etherType also
     # set to BARC identifier
-    ether = CEther(dst=xtos(BARC_DA), src=get_src_addr(), type=TYPE_BARC)
+    ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
     # make BARC frame
     barc = BARC(S=BARC_P, BI=[FAB_ID, 0x01, 0x02, 0x03, 0x04, 0x05])
@@ -124,7 +124,7 @@ def test_bpss(intf=get_intf()):
     """
 
     # make BARC frame
-    ether = CEther(dst=xtos(BARC_DA), src=get_src_addr(), type=TYPE_BARC)
+    ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
     # make BARC inquiry frame with the first
     # field in BI set to host identifier
