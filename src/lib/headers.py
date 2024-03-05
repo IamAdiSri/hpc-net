@@ -48,7 +48,7 @@ class CORE(Packet):
 
     name = "COREPacket"
     fields_desc = [
-        XByteField("subtype", 0x00),
+        XByteField("subtype", 0x0000),
         FieldListField("CA", [], XByteField("", 0x00), count_from=lambda pkt: 6),
         # TODO: FCS field
     ]

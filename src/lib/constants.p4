@@ -26,7 +26,7 @@ const bit<4>  BARC_I  = 0xA;
 const bit<4>  BARC_P  = 0xB;
 
 // CORE subtypes
-const bit<4> CORE_S = 0x0000;
+const bit<16> CORE_S = 0x0000;
 
 // node identifiers
 const bit<8> SPN_ID = 0xBE; // Spine identifier 0b10111110

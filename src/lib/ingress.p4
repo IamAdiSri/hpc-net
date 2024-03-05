@@ -314,6 +314,15 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                     // TODO
                     log_msg("WARNING: Collective Registration is yet to be implemented; packet dropped.");
                     standard_metadata.egress_spec = 511;
+
+                    if (hdr.proto.core.subtype == CORE_S) { // collective registration
+                        
+                        // TODO: why are we checking this
+                        
+                    }
+                    else {
+                        // TODO: do what here?
+                    }
                 }
                 else { // unknown etherType
                     log_msg("ERROR: Unknown multicast ethertype; packet dropped.");

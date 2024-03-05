@@ -38,7 +38,7 @@ header barc_t{
 
 // core header
 header core_t{
-    bit<8>  subtype;
+    bit<16> subtype;
     addr_t  CA;
     // TODO: FCS field
 }

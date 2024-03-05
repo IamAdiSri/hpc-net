@@ -16,7 +16,7 @@ BARC_I = 0xA
 BARC_P = 0xB
 
 # CORE subtypes
-CORE_S = 0x0
+CORE_S = 0x0000
 
 # node identifiers
 SPN_ID = 0xBE  # Spine identifier 0b11100000
