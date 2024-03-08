@@ -14,7 +14,7 @@ from lib.multicast import setup_example, setup_mcast
 
 K = 4
 DROP_PORT = 511
-CTRL_PORT = 510
+CTRL_SESSION = CTRL_PORT = 510
 with open("runtime.p4", "w") as f:
     f.write(
         f"""/*
@@ -27,8 +27,7 @@ with open("runtime.p4", "w") as f:
 
 const int TREE_K={bin(K)};
 const int DROP_PORT = {bin(DROP_PORT)};
-const int CTRL_PORT = {bin(CTRL_PORT)};
-const bit<32> CTRL_SESSION = {bin(CTRL_PORT)};"""
+const bit<32> CTRL_SESSION = {bin(CTRL_SESSION)};"""
     )
 
 # initialize network
@@ -45,8 +44,8 @@ net.enableLogAll()
 net.disableCli()
 net.startNetwork()
 
-# setup mcast groups
-setup_mcast(K, net)
+# setup mcast groups and mirroring sessions
+setup_mcast(K, net, CTRL_PORT)
 
 # setup example entries mcast table
 setup_example(K, net)
@@ -62,7 +61,7 @@ time.sleep(10)
 
 # start the controller
 ctrl = net.net.get(net.ctrl)
-ctrl.cmd(f"nohup python3 ../lib/controller.py | tee -a controller_logs.txt &")
+ctrl.cmd(f"nohup python3 ../lib/controller.py > outputs/output_ctrl.txt &")
 
 net.start_net_cli()
 
