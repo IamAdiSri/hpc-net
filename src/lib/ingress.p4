@@ -190,18 +190,16 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
 
     action multicast_to_group(bit<16> mc_group) {
         standard_metadata.mcast_grp = mc_group;
-
-        // send clone to controller
-        clone(CloneType.I2E, CTRL_SESSION);
     }
 
     action multicast_registration(bit<8> switchPort) {
         hdr.proto.core.swaddr = self_0 ++ self_1 ++ self_2;
         hdr.proto.core.inport = ingressPort;
 
+
         // send packet to switch
         standard_metadata.egress_spec = (bit<9>) switchPort;
-
+        
         // send clone to controller
         clone(CloneType.I2E, CTRL_SESSION);
     }

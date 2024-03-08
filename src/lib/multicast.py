@@ -33,22 +33,37 @@ def add_mcast_groups(g2p, thrift_port, thrift_ip="127.0.0.1"):
         controller.mc_node_associate(grp, node_handle)
 
 
+def add_mirror(ctrl_port, thrift_port, thrift_ip="127.0.0.1"):
+    controller = SimpleSwitchThriftAPI(thrift_port=thrift_port, thrift_ip=thrift_ip)
+
+    controller.mirroring_add(ctrl_port, ctrl_port)
+
+
 def setup_mcast(K, net, ctrl_port=None):
     # map group ids to ports
     g2p = dict(enumerate([gen_mcast_ports(b) for b in range(2**K)]))
 
     # add mgroup for controller
-    if ctrl_port:
-        g2p[ctrl_port] = [ctrl_port]
+    # if ctrl_port:
+    #     g2p[ctrl_port] = [ctrl_port]
 
     for sname in net.ft_switches["rck"]:
-        add_mcast_groups(g2p, net.net.get(sname).thrift_port)
+        tp = net.net.get(sname).thrift_port
+        add_mcast_groups(g2p, tp)
+        if ctrl_port:
+            add_mirror(ctrl_port, tp)
 
     for sname in net.ft_switches["fab"]:
-        add_mcast_groups(g2p, net.net.get(sname).thrift_port)
+        tp = net.net.get(sname).thrift_port
+        add_mcast_groups(g2p, tp)
+        if ctrl_port:
+            add_mirror(ctrl_port, tp)
 
     for sname in net.ft_switches["spn"]:
-        add_mcast_groups(g2p, net.net.get(sname).thrift_port)
+        tp = net.net.get(sname).thrift_port
+        add_mcast_groups(g2p, tp)
+        if ctrl_port:
+            add_mirror(ctrl_port, tp)
 
 
 def add_table_entries(K, net, sname, ca, ports):

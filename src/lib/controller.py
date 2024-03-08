@@ -13,8 +13,8 @@ class Controller:
     def __init__(self, name, thrift_ip=None):
         self.name = name
         self.thrift_ip = "127.0.0.1" if not thrift_ip else thrift_ip
-        self.intf = None
-        self.sniffer = None
+        self.intf = []
+        self.sniffer = []
 
     def process(self, pkt):
         pkt = deparser(pkt)
@@ -27,22 +27,24 @@ class Controller:
             addrs = psutil.net_if_addrs()
             for i in addrs.keys():
                 if self.name in i:
-                    self.intf = i
-                    return i
+                    self.intf.append(i)
+            return self.intf
 
     def start(self):
-        self.sniffer = AsyncSniffer(
-            prn=lambda pkt: self.process(pkt), store=False, iface=self.get_intf()
-        )
-        self.sniffer.start()
+        for intf in self.get_intf():
+            self.sniffer.append(
+                AsyncSniffer(prn=lambda pkt: self.process(pkt), store=False, iface=intf)
+            )
+            self.sniffer[-1].start()
         try:
             while True:
                 pass
-        except InterruptedError:
-            self.sniffer.stop()
+        except Exception:
+            self.stop()
 
     def stop(self):
-        self.sniffer.stop()
+        for t in self.sniffer:
+            t.stop()
         exit()
 
 
