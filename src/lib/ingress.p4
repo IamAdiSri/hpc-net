@@ -26,11 +26,11 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     bit<8> egressPort;
 
     action drop() {
-        // sets egress port to 511 unless specified 
+        // sets egress port to DROP_PORT unless specified 
         // otherwise with the --drop-port flag
         
         // same as the following:
-        // standard_metadata.egress_spec = 511;
+        // standard_metadata.egress_spec = DROP_PORT;
 
 
         mark_to_drop(standard_metadata);
@@ -84,9 +84,8 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
         }
         else { // address has been set incorrectly
             
-            // TODO: raise error
-            // mark to drop?
-            standard_metadata.egress_spec = 511;
+            // mark to drop
+            standard_metadata.egress_spec = DROP_PORT;
 
         }
     }
@@ -140,9 +139,8 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
         } 
         else { // address has been set incorrectly
 
-            // TODO: raise error
-            // mark to drop?
-            standard_metadata.egress_spec = 511;
+            // mark to drop
+            standard_metadata.egress_spec = DROP_PORT;
         }
         
     }
@@ -185,15 +183,30 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
         }
         else { // address has been set incorrectly
             
-            // TODO: raise error
-            // mark to drop?
-            standard_metadata.egress_spec = 511;
+            // mark to drop
+            standard_metadata.egress_spec = DROP_PORT;
         }
     }
 
     action multicast_to_group(bit<16> mc_group) {
         standard_metadata.mcast_grp = mc_group;
+
+        // send clone to controller
+        clone(CloneType.I2E, CTRL_SESSION);
     }
+
+    action multicast_registration(bit<8> switchPort) {
+        hdr.proto.core.swaddr = self_0 ++ self_1 ++ self_2;
+        hdr.proto.core.inport = ingressPort;
+
+        // send packet to switch
+        standard_metadata.egress_spec = (bit<9>) switchPort;
+
+        // send clone to controller
+        clone(CloneType.I2E, CTRL_SESSION);
+    }
+
+    action placeholder_action() {}
 
     table mc_table {
         key = {
@@ -210,9 +223,24 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
         }
         // size = 1024;
     }
+
+    table placeholder_table {
+        key = {
+            hdr.proto.core.CA.f0 : exact;
+            hdr.proto.core.CA.f1 : exact;
+            hdr.proto.core.CA.f2 : exact;
+            hdr.proto.core.CA.f3 : exact;
+            hdr.proto.core.CA.f4 : exact;
+            hdr.proto.core.CA.f5 : exact;
+            ingressPort: exact;
+        }
+        actions = {
+            placeholder_action;
+        }
+    }
     
     apply {
-                
+
         if (hdr.ethernet.dstAddr.f0 == HST_ID) { // unicast
 
             // load switch address
@@ -250,85 +278,104 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
             else { // unknown switch
 
                 log_msg("ERROR: Unknown unicast switch ID; packet dropped.");
-                standard_metadata.egress_spec = 511;
+                standard_metadata.egress_spec = DROP_PORT;
             }
         }
-        else if (hdr.ethernet.dstAddr.f0 & 1 == 1) { // multicast
+        else if (hdr.ethernet.dstAddr.f0 == (SPN_ID | 1)) { // multicast forwarding
 
-            if (hdr.ethernet.dstAddr.f0 == (SPN_ID | 1)) { // multicast forwarding
-                // TODO
-                if (!mc_table.apply().hit) { // no match found
-                    log_msg("WARNING: Did not find a match for the multicast address; packet dropped.");
-                    standard_metadata.egress_spec = 511;
+            if (!mc_table.apply().hit) { // no match found
+                log_msg("WARNING: Did not find a match for the multicast address; packet dropped.");
+                standard_metadata.egress_spec = DROP_PORT;
+            }
+        }
+        else if (hdr.ethernet.dstAddr == NCB_DA) { // special multicast
+
+            if (hdr.ethernet.etherType == TYPE_BARC) { // BARC
+
+                if (hdr.proto.barc.S == BARC_I) { // BARC Inquiry
+                    barc_i_rs();
+                }
+                else if (hdr.proto.barc.S == BARC_P) { // BARC Proposal
+
+                    // load switch address
+                    self.read(self_0, (bit<32>) 0);
+                    self.read(self_1, (bit<32>) 1);
+                    self.read(self_2, (bit<32>) 2);
+
+                    if (hdr.proto.barc.BI.f0 == FAB_ID) { // to fabric switch
+                        if (ingressDir) {
+                            // low port of ingress
+                            barc_p_fs_low();
+                        }
+                        else {
+                            // high port of ingress
+                            barc_p_fs_high();
+                        }
+                    }
+                    else if (hdr.proto.barc.BI.f0 == RCK_ID) { // to rack switch
+                        barc_p_rs();
+                    }
+                    else if (hdr.proto.barc.BI.f0 == SPN_ID) { //  to spine switch
+                        barc_p_ss();
+                    }
+                    else { // unknown switch type
+                    
+                        log_msg("ERROR: Unknown BARC switch ID; packet dropped.");
+                        standard_metadata.egress_spec = DROP_PORT;
+                    }
+
+                    // update switch address 
+                    self.write((bit<32>) 0, self_0);
+                    self.write((bit<32>) 1, self_1);
+                    self.write((bit<32>) 2, self_2);
+                }
+                else { // unknown BARC subtype
+
+                    log_msg("ERROR: Unknown BARC subtype; packet dropped.");
+                    standard_metadata.egress_spec = DROP_PORT;
                 }
             }
-            else if (hdr.ethernet.dstAddr == NCB_DA) { // special multicast
+            else if (hdr.ethernet.etherType == TYPE_CORE) { // Collective Registration (CoRe)
 
-                if (hdr.ethernet.etherType == TYPE_BARC) { // BARC
+                if (hdr.proto.core.subtype == CORE_S) { // collective registration
 
-                    if (hdr.proto.barc.S == BARC_I) { // BARC Inquiry
-                        barc_i_rs();
-                    }
-                    else if (hdr.proto.barc.S == BARC_P) { // BARC Proposal
-
+                    if (!placeholder_table.apply().hit) { // match not found
+                                                          // add (ca, inport)
+                        
                         // load switch address
                         self.read(self_0, (bit<32>) 0);
                         self.read(self_1, (bit<32>) 1);
                         self.read(self_2, (bit<32>) 2);
 
-                        if (hdr.proto.barc.BI.f0 == FAB_ID) { // to fabric switch
-                            if (ingressDir) {
-                                // low port of ingress
-                                barc_p_fs_low();
-                            }
-                            else {
-                                // high port of ingress
-                                barc_p_fs_high();
-                            }
+                        if (self_0 == RCK_ID) { // rack switch
+                            multicast_registration(hdr.proto.core.CA.f2 + TREE_K/2);
                         }
-                        else if (hdr.proto.barc.BI.f0 == RCK_ID) { // to rack switch
-                            barc_p_rs();
+                        else if (self_0 == SPN_ID) { // spine switch
+                            multicast_registration(hdr.proto.core.CA.f1 + TREE_K/2);
                         }
-                        else if (hdr.proto.barc.BI.f0 == SPN_ID) { //  to spine switch
-                            barc_p_ss();
+                        else { // unknown switch
+                            
+                            log_msg("ERROR: Unknown CoRe switch ID; packet dropped.");
+                            standard_metadata.egress_spec = DROP_PORT;
                         }
-                        else { // unknown switch type
-                        
-                            log_msg("ERROR: Unknown BARC switch ID; packet dropped.");
-                            standard_metadata.egress_spec = 511;
-                        }
-
-                        // update switch address 
-                        self.write((bit<32>) 0, self_0);
-                        self.write((bit<32>) 1, self_1);
-                        self.write((bit<32>) 2, self_2);
                     }
-                    else { // unknown BARC subtype
-
-                        log_msg("ERROR: Unknown BARC subtype; packet dropped.");
-                        standard_metadata.egress_spec = 511;
+                    else { // match found
+                        log_msg("WARNING: Host is already a member of the collective; packet dropped.");
+                        standard_metadata.egress_spec = DROP_PORT;
                     }
                 }
-                else if (hdr.ethernet.etherType == TYPE_CORE) { // Collective Registration (CoRe)
-
-                    // TODO
-                    log_msg("WARNING: Collective Registration is yet to be implemented; packet dropped.");
-                    standard_metadata.egress_spec = 511;
-
-                    if (hdr.proto.core.subtype == CORE_S) { // collective registration
-                        
-                        // TODO: why are we checking this
-                        
-                    }
-                    else {
-                        // TODO: do what here?
-                    }
-                }
-                else { // unknown etherType
-                    log_msg("ERROR: Unknown multicast ethertype; packet dropped.");
-                    standard_metadata.egress_spec = 511;
+                else {
+                    // TODO: For future use
                 }
             }
+            else { // unknown etherType
+                log_msg("ERROR: Unknown multicast ethertype; packet dropped.");
+                standard_metadata.egress_spec = DROP_PORT;
+            }
+        }
+        else { // unknown protocol
+            log_msg("ERROR: Unknown address; packet dropped");
+            standard_metadata.egress_spec = DROP_PORT;
         }
 
         log_msg("Source Address: {}:{}:{}:{}:{}:{}", hdr.ethernet.srcAddr);

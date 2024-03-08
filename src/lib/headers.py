@@ -3,8 +3,15 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from scapy.fields import (BitEnumField, BitField, FieldListField, MACField,
-                          StrField, XByteField, XShortEnumField)
+from scapy.fields import (
+    BitEnumField,
+    BitField,
+    FieldListField,
+    MACField,
+    StrField,
+    XByteField,
+    XShortEnumField,
+)
 from scapy.packet import Packet, bind_layers
 
 from lib.constants import *
@@ -48,9 +55,12 @@ class CORE(Packet):
 
     name = "COREPacket"
     fields_desc = [
-        XByteField("subtype", 0x0000),
+        BitField("subtype", CORE_S, 16),
         FieldListField("CA", [], XByteField("", 0x00), count_from=lambda pkt: 6),
         # TODO: FCS field
+        # Exception while parsing: PacketTooShort
+        BitField("swaddr", 0x000000, 24),
+        BitField("inport", 0x00, 8),
     ]
 
 

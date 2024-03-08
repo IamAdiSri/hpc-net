@@ -5,13 +5,15 @@
 
 from p4utils.mininetlib.network_API import NetworkAPI
 
+from lib.controller import Controller
+
 
 class FatTreeTopo(NetworkAPI):
     def __init__(self, loglevel="info"):
         super().__init__()
         self.setLogLevel(loglevel)
 
-    def setup(self, src, k=4):
+    def setup(self, src, k=4, ctrl_port=None):
         """
         Initializes a FatTree Mininet Topology
         with P4 switches using a custom program.
@@ -114,3 +116,15 @@ class FatTreeTopo(NetworkAPI):
             "spn": spn_switches,
         }
         self.ft_hosts = hosts
+
+        if ctrl_port:
+            # make one more host for the controller
+            self.ctrl = self.addHost(f"ctrl")
+
+            # add links to every switch
+            self.ctrl_map = {}
+            for p, switch in enumerate(rck_switches + fab_switches + spn_switches):
+                self.ctrl_map[switch] = p
+                self.addLink(switch, self.ctrl)
+                self.setIntfPort(switch, self.ctrl, ctrl_port)
+                self.setIntfPort(self.ctrl, switch, p)

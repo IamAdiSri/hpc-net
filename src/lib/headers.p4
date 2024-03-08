@@ -41,6 +41,8 @@ header core_t{
     bit<16> subtype;
     addr_t  CA;
     // TODO: FCS field
+    bit<24> swaddr;
+    bit<8> inport;
 }
 
 // combined special headers

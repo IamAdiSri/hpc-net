@@ -18,18 +18,23 @@ from scapy.layers.l2 import *
 sys.path.append(os.path.join(sys.path[0], ".."))
 
 from lib.constants import *
-from lib.headers import BARC, CEther, deparser
+from lib.headers import BARC, CORE, CEther, deparser
 from lib.utils import *
 
 src_addr = None
+intf = None
 
 
 def get_intf():
-    addrs = psutil.net_if_addrs()
-    for i in addrs.keys():
-        if "hst" in i:
-            return i
-    return None
+    global intf
+    if intf:
+        return intf
+    else:
+        addrs = psutil.net_if_addrs()
+        for i in addrs.keys():
+            if "hst" in i:
+                intf = i
+                return i
 
 
 def get_src_addr(intf=get_intf()):
@@ -167,6 +172,19 @@ def test_multicast(dst, intf=get_intf()):
     # compile and display complete frame
     frame = ether / f"message from {intf.split('-')[0]}"
     print("\nSending MULTICAST frame:")
+    frame.show()
+    # ls(frame)
+    sendp(frame, iface=intf)
+    print("\n\n")
+
+
+def test_mc_registration(intf=get_intf()):
+    ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_CORE)
+    core = CORE(CA=[SPN_ID | 1, 0x01, 0x00, 0x00, 0x00, 0x01])
+
+    # compile and display complete frame
+    frame = ether / core
+    print("\nSending CEther/CORE frame:")
     frame.show()
     # ls(frame)
     sendp(frame, iface=intf)

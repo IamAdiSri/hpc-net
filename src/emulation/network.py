@@ -12,11 +12,9 @@ sys.path.append(os.path.join(sys.path[0], ".."))
 from lib.fattree import FatTreeTopo
 from lib.multicast import setup_example, setup_mcast
 
-# initialize network
-net = FatTreeTopo(loglevel="info")
-
-# build k-ary fat-tree
 K = 4
+DROP_PORT = 511
+CTRL_PORT = 510
 with open("runtime.p4", "w") as f:
     f.write(
         f"""/*
@@ -27,9 +25,17 @@ with open("runtime.p4", "w") as f:
 
 /* -*- P4_16 -*- */
 
-const int TREE_K={bin(K)};"""
+const int TREE_K={bin(K)};
+const int DROP_PORT = {bin(DROP_PORT)};
+const int CTRL_PORT = {bin(CTRL_PORT)};
+const bit<32> CTRL_SESSION = {bin(CTRL_PORT)};"""
     )
-net.setup(src="switch.p4", k=K)
+
+# initialize network
+net = FatTreeTopo(loglevel="info")
+
+# build k-ary fat-tree
+net.setup(src="switch.p4", k=K, ctrl_port=CTRL_PORT)
 
 # enable logging
 net.enablePcapDumpAll()
@@ -53,6 +59,10 @@ for hname in net.ft_hosts:
 # this timeout will need to be
 # increased for larger k values
 time.sleep(10)
+
+# start the controller
+ctrl = net.net.get(net.ctrl)
+ctrl.cmd(f"nohup python3 ../lib/controller.py | tee -a controller_logs.txt &")
 
 net.start_net_cli()
 

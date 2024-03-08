@@ -33,9 +33,13 @@ def add_mcast_groups(g2p, thrift_port, thrift_ip="127.0.0.1"):
         controller.mc_node_associate(grp, node_handle)
 
 
-def setup_mcast(K, net):
+def setup_mcast(K, net, ctrl_port=None):
     # map group ids to ports
     g2p = dict(enumerate([gen_mcast_ports(b) for b in range(2**K)]))
+
+    # add mgroup for controller
+    if ctrl_port:
+        g2p[ctrl_port] = [ctrl_port]
 
     for sname in net.ft_switches["rck"]:
         add_mcast_groups(g2p, net.net.get(sname).thrift_port)
@@ -65,6 +69,12 @@ def add_table_entries(K, net, sname, ca, ports):
                 "SFZSIngress.multicast_to_group",
                 ca + [str(ingressPort)],
                 [f"0b{''.join(new_ports)}"],
+            )
+            controller.table_add(
+                "SFZSIngress.placeholder_table",
+                "SFZSIngress.placeholder_action",
+                ca + [str(ingressPort)],
+                [],
             )
 
 
