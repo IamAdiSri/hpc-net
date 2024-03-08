@@ -17,8 +17,10 @@ class Controller:
         self.sniffer = []
 
     def process(self, pkt):
+        print("Received frame:")
         pkt = deparser(pkt)
         pkt.show()
+        print("\n")
 
     def get_intf(self):
         if self.intf:
@@ -36,6 +38,8 @@ class Controller:
                 AsyncSniffer(prn=lambda pkt: self.process(pkt), store=False, iface=intf)
             )
             self.sniffer[-1].start()
+            print(f"Started packet sniffer on interface {intf}")
+        print("\n")
         try:
             while True:
                 pass
@@ -43,11 +47,13 @@ class Controller:
             self.stop()
 
     def stop(self):
+        print("Exiting")
         for t in self.sniffer:
             t.stop()
         exit()
 
 
 if __name__ == "__main__":
+    # with open('outputs/output_ctrl.txt', 'w') as sys.stdout:
     controller = Controller("ctrl")
     controller.start()

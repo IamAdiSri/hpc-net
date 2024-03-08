@@ -80,7 +80,7 @@ def test_bi(intf=get_intf()):
     frame.show()
     # ls(frame)
     sendp(frame, iface=intf)
-    print("\n\n")
+    print("\n")
 
 
 def test_bprs(intf=get_intf()):
@@ -98,7 +98,7 @@ def test_bprs(intf=get_intf()):
     frame.show()
     # ls(frame)
     sendp(frame, iface=intf)
-    print("\n\n")
+    print("\n")
 
 
 def test_bpfs(intf=get_intf()):
@@ -120,7 +120,7 @@ def test_bpfs(intf=get_intf()):
     frame.show()
     # ls(frame)
     sendp(frame, iface=intf)
-    print("\n\n")
+    print("\n")
 
 
 def test_bpss(intf=get_intf()):
@@ -141,7 +141,7 @@ def test_bpss(intf=get_intf()):
     frame.show()
     # ls(frame)
     sendp(frame, iface=intf)
-    print("\n\n")
+    print("\n")
 
 
 def test_unicast(dst, intf=get_intf()):
@@ -158,7 +158,7 @@ def test_unicast(dst, intf=get_intf()):
     frame.show()
     # ls(frame)
     sendp(frame, iface=intf)
-    print("\n\n")
+    print("\n")
 
 
 def test_multicast(dst, intf=get_intf()):
@@ -175,7 +175,7 @@ def test_multicast(dst, intf=get_intf()):
     frame.show()
     # ls(frame)
     sendp(frame, iface=intf)
-    print("\n\n")
+    print("\n")
 
 
 def test_mc_registration(intf=get_intf()):
@@ -188,7 +188,7 @@ def test_mc_registration(intf=get_intf()):
     frame.show()
     # ls(frame)
     sendp(frame, iface=intf)
-    print("\n\n")
+    print("\n")
 
 
 captures = []
@@ -202,11 +202,11 @@ def listen(intf=get_intf()):
     global src_addr
 
     def show(x):
-        print("Received frames:")
+        print("Received frame:")
         x = deparser(x)
         x.show()
         # ls(x)
-        print("\n\n")
+        print("\n")
 
         if x.type == TYPE_BARC and x.S == BARC_P:
             src_addr = ":".join(["%02x" % a for a in x.BI])

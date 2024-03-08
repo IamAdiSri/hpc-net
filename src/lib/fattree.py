@@ -3,9 +3,8 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-from p4utils.mininetlib.network_API import NetworkAPI
-
 from lib.controller import Controller
+from p4utils.mininetlib.network_API import NetworkAPI
 
 
 class FatTreeTopo(NetworkAPI):
@@ -43,7 +42,8 @@ class FatTreeTopo(NetworkAPI):
         spn_switches = []
         for ssid in range(nspnp):
             for sid in range(nspn):
-                s = self.addP4Switch(f"spn_{ssid}_{sid}")
+                # s = self.addP4Switch(f"spn_{ssid}_{sid}")
+                s = self.addP4RuntimeSwitch(f"spn_{ssid}_{sid}")
                 spn_mat[sid][ssid] = s
                 spn_switches.append(s)
 
@@ -52,7 +52,8 @@ class FatTreeTopo(NetworkAPI):
         fab_switches = []
         for pid in range(npod):
             for sid in range(nspn):
-                f = self.addP4Switch(f"fab_{pid}_{sid}")
+                # f = self.addP4Switch(f"fab_{pid}_{sid}")
+                f = self.addP4RuntimeSwitch(f"fab_{pid}_{sid}")
                 fab_mat[pid][sid] = f
                 fab_switches.append(f)
 
@@ -61,7 +62,8 @@ class FatTreeTopo(NetworkAPI):
         rck_switches = []
         for pid in range(npod):
             for rid in range(nrckp):
-                r = self.addP4Switch(f"rck_{pid}_{rid}")
+                # r = self.addP4Switch(f"rck_{pid}_{rid}")
+                r = self.addP4RuntimeSwitch(f"rck_{pid}_{rid}")
                 rck_mat[pid][rid] = r
                 rck_switches.append(r)
 

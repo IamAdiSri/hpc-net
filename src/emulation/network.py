@@ -25,9 +25,10 @@ with open("runtime.p4", "w") as f:
 
 /* -*- P4_16 -*- */
 
-const int TREE_K={bin(K)};
-const int DROP_PORT = {bin(DROP_PORT)};
-const bit<32> CTRL_SESSION = {bin(CTRL_SESSION)};"""
+const int TREE_K={bin(K)}; // {K}
+const int DROP_PORT = {bin(DROP_PORT)}; // {DROP_PORT}
+const bit<32> CTRL_SESSION = {bin(CTRL_SESSION)}; // {CTRL_SESSION}
+"""
     )
 
 # initialize network
@@ -53,7 +54,9 @@ setup_example(K, net)
 threads = []
 for hname in net.ft_hosts:
     hobj = net.net.get(hname)
-    hobj.cmd(f"nohup python3 test.py {hobj.intf().name} > outputs/output_{hname}.txt &")
+    hobj.cmd(
+        f"nohup python3 -u test.py {hobj.intf().name} > outputs/output_{hname}.txt &"
+    )
 
 # this timeout will need to be
 # increased for larger k values
@@ -61,7 +64,7 @@ time.sleep(10)
 
 # start the controller
 ctrl = net.net.get(net.ctrl)
-ctrl.cmd(f"nohup python3 ../lib/controller.py > outputs/output_ctrl.txt &")
+ctrl.cmd(f"nohup python3 -u ../lib/controller.py > outputs/output_ctrl.txt &")
 
 net.start_net_cli()
 

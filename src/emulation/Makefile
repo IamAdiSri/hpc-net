@@ -2,8 +2,10 @@ all: ../lib/headers.p4 ../lib/constants.p4 ../lib/registers.p4 ../lib/parser.p4 
 	mkdir -p outputs
 	sudo -E python3 network.py
 
-clean:
+stop:
 	sudo mn -c
+
+clean: stop
 	sudo rm -rf log pcap outputs
 	sudo rm -f switch.json switch.p4i runtime.p4
 	sudo rm -f topology.json
