@@ -68,12 +68,15 @@ for stype in net.ft_switches:
 # increased for larger k values
 time.sleep(20)
 
-# setup example entries mcast table
-print("Setting up multicast example 1...")
+# TODO: example causes bug if a new switch
+#       tries to register
+
+# # setup example entries mcast table
+# print("Setting up multicast example 1...")
 # example_1(K, net)
 
-# this timeout will need to be
-# increased for larger k values
+# # this timeout will need to be
+# # increased for larger k values
 # time.sleep(20)
 
 threads = []
