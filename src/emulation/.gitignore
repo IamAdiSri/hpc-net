@@ -2,5 +2,6 @@ outputs/
 runtime.p4
 switch.json
 switch.p4i
+switch_p4rt.txt
 topology.json
 preprocessed_logs.json

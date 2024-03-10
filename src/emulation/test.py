@@ -32,7 +32,7 @@ def get_intf():
     else:
         addrs = psutil.net_if_addrs()
         for i in addrs.keys():
-            if "hst" in i:
+            if "h_" in i:
                 intf = i
                 return i
 
@@ -180,7 +180,7 @@ def test_multicast(dst, intf=get_intf()):
 
 def test_mc_registration(intf=get_intf()):
     ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_CORE)
-    core = CORE(CA=[SPN_ID | 1, 0x01, 0x00, 0x00, 0x00, 0x01])
+    core = CORE(CA=[SPN_ID | 1, 0x01, 0x00, 0x00, 0x00, 0x01], inport=int(get_src_addr().split(":")[3]))
 
     # compile and display complete frame
     frame = ether / core
