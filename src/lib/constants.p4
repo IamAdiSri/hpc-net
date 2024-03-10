@@ -33,3 +33,12 @@ const bit<8> SPN_ID = 0xBE; // Spine identifier 0b10111110
 const bit<8> FAB_ID = 0xFE; // Fabric identifier 0b11111110
 const bit<8> RCK_ID = 0xEE; // Rack identifier 0b11101110
 const bit<8> HST_ID = 0xAE; // Host identifier 0b10101110
+
+// packet instance type constants
+#define PKT_INSTANCE_TYPE_NORMAL 0
+#define PKT_INSTANCE_TYPE_INGRESS_CLONE 1
+#define PKT_INSTANCE_TYPE_EGRESS_CLONE 2
+#define PKT_INSTANCE_TYPE_COALESCED 3
+#define PKT_INSTANCE_TYPE_INGRESS_RECIRC 4
+#define PKT_INSTANCE_TYPE_REPLICATION 5
+#define PKT_INSTANCE_TYPE_RESUBMIT 6

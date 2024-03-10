@@ -9,16 +9,6 @@ stop:
 clean: stop
 	sudo rm -rf log pcap outputs
 	sudo rm -f switch.json switch.p4i runtime.p4
-	sudo rm -f topology.json
+	sudo rm -f topology.json switch_p4rt.txt
 	sudo rm -rf __pycache__ ../lib/__pycache__
 	rm -f preprocessed_logs.json
-
-# register course on canvas OPT essentials
-# do quiz
-# print quiz grades
-
-# keep ready my passport pdf
-# visa pdf
-# i94 pdf
-
-# fill opt request form

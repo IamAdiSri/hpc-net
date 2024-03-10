@@ -30,6 +30,7 @@ with open("runtime.p4", "w") as f:
 
 const int TREE_K={bin(K)}; // {K}
 const int DROP_PORT = {bin(DROP_PORT)}; // {DROP_PORT}
+const int CTRL_PORT = {bin(CTRL_PORT)}; // {CTRL_PORT}
 const bit<32> CTRL_SESSION = {bin(CTRL_SESSION)}; // {CTRL_SESSION}
 """
     )

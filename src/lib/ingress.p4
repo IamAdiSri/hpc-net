@@ -193,14 +193,14 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     }
 
     action multicast_registration(bit<8> switchPort) {
-        // send clone to controller
-        clone(CloneType.I2E, CTRL_SESSION);
-
         // modify packet
         hdr.proto.core.inport = ingressPort;
 
         // send packet to switch
         standard_metadata.egress_spec = (bit<9>) switchPort;
+
+        // send clone to controller
+        clone(CloneType.I2E, CTRL_SESSION);
     }
 
     action placeholder_action() {}
@@ -349,6 +349,16 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                         }
                         else if (self_0 == FAB_ID) { // fabric switch
                             multicast_registration(hdr.proto.core.CA.f1 + TREE_K/2);
+                        }
+                        else if (self_0 == SPN_ID) { // spine switch
+                            // this doesn't work for some reason on spine switches
+                            // multicast_registration(DROP_PORT);
+
+                            // modify packet
+                            hdr.proto.core.inport = ingressPort;
+
+                            // send packet to switch
+                            standard_metadata.egress_spec = (bit<9>) CTRL_PORT;
                         }
                         else { // unknown switch
                             

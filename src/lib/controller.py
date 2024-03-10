@@ -76,7 +76,6 @@ class Controller:
     def core_handler(self, ca, inport):
         ca = [hex(f) for f in ca]
 
-        # get entry if already exists
         @capture_stdout
         def get_entry(key):
             self.controller.table_dump_entry_from_key(
@@ -84,41 +83,95 @@ class Controller:
             key
         )
         
+        # get entry if key already exists
         entry = get_entry(ca + [str(inport)])
         print(entry)
 
         old_ports = 0
 
-        # key already exists
+        # do nothing if key already exists
         if entry != 'Invalid table operation (BAD_MATCH_KEY)\n':
-            old_ports = entry.split('\n')[-2].split(' - ')[-1]
-            if old_ports[0] == '0':
-                old_ports = int(old_ports[1])
-            else:
-                old_ports = int(old_ports)
-            
-        outport = inport + self.k//2
+            print("core_handler: [ERROR] Key already exists in table; this packet should not have arrived at the controller")
+            return
         
-        i = self.k - inport - 1
-        o = self.k - outport - 1
+        # check if any other ports are 
+        # also linked to this CA and 
+        # delete their rules if so
+        members = {inport,}
+        for p in range(self.k):
+            if p != inport:
+                key = ca + [str(p)]
+                entry = get_entry(key)
+                print(entry)
 
-        new_ports = ['0' for _ in range(self.k)]
-        new_ports[i] = new_ports[o] = '1'
-        new_ports = int(f"0b{''.join(new_ports)}", 2)
-            
-        self.controller.table_add(
-            "SFZSIngress.mc_table",
-            "SFZSIngress.multicast_to_group",
-            ca + [str(inport)],
-            [format(old_ports|new_ports, f"#0{self.k+2}b")],
-        )
-        self.controller.table_add(
-            "SFZSIngress.placeholder_table",
-            "SFZSIngress.placeholder_action",
-            ca + [str(inport)],
-            [],
-        )
+                if entry != 'Invalid table operation (BAD_MATCH_KEY)\n':
+                    # add port to members
+                    members.add(p)
 
+                    # identify all other member ports from match
+                    old_ports = entry.split('\n')[-2].split(' - ')[-1]
+                    if old_ports[0] == '0':
+                        old_ports = int(old_ports[1])
+                    else:
+                        old_ports = int(old_ports)
+                    
+                    p = 0
+                    while old_ports != 0:
+                        if old_ports & 1 == 1:
+                            members.add(p)
+                        old_ports >>= 1
+                        p += 1
+                    
+                    # delete table entries for all other members
+                    for m in members:
+                        if m != inport:
+                            key = ca + [str(m)]
+                            self.controller.table_delete_match(
+                                "SFZSIngress.mc_table",
+                                key,
+                            )
+                            self.controller.table_delete_match(
+                                "SFZSIngress.placeholder_table",
+                                key,
+                            )
+
+                    # break out of loop
+                    break
+        
+        # add the egress port to the member list
+        if self.sname[0] == 'r': # rack switch
+            outport = int(ca[2], 16) + self.k//2
+            members.add(outport)
+        elif self.sname[0] == 'f': # fabric switch
+            outport = int(ca[1], 16) + self.k//2
+            members.add(outport)
+
+        # convert members to bit mask
+        bitmask = ['0' for _ in range(self.k)]
+        for m in members:
+            bitmask[self.k - 1 - m] = '1'
+
+        print(f"Port bitmask: {bitmask}\n")
+
+        # add back the rules for all members
+        for i in range(self.k):
+            if bitmask[self.k - 1 - i] == '1':
+                i_mask = [b for b in bitmask]
+                i_mask[self.k - 1 - i] = '0'
+                i_mask = f"0b{''.join(i_mask)}"
+                
+                self.controller.table_add(
+                    "SFZSIngress.mc_table",
+                    "SFZSIngress.multicast_to_group",
+                    ca + [str(i)],
+                    [i_mask],
+                )
+                self.controller.table_add(
+                    "SFZSIngress.placeholder_table",
+                    "SFZSIngress.placeholder_action",
+                    ca + [str(i)],
+                    [],
+                )
 
     def process(self, pkt):
         pkt = deparser(pkt)
