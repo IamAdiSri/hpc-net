@@ -122,16 +122,14 @@ class Controller:
         """
         ca = [hex(f) for f in ca]
 
-        print(">>>")
-        self.controller.table_dump("SFZSIngress.mc_table")
-        print(">>>")
-
         @capture_stdout
         def get_entry(key):
             self.controller.table_dump_entry_from_key("SFZSIngress.mc_table", key)
 
         # get entry if key already exists
-        entry = get_entry(ca + [hex(inport)])
+        key = ca + [hex(inport)]
+        entry = get_entry(key)
+        print("Checking key:", key)
         print(entry)
 
         old_ports = 0
@@ -150,7 +148,8 @@ class Controller:
             if p != inport:
                 key = ca + [hex(p)]
                 entry = get_entry(key)
-                print(key, entry)
+                print("Checking key:", key)
+                print(entry)
 
                 if entry != "Invalid table operation (BAD_MATCH_KEY)\n":
                     # add port to members
@@ -197,9 +196,9 @@ class Controller:
                 i_mask = f"0b{''.join(i_mask)}"
 
                 key = ca + [hex(i)]
-                print(key)
 
                 if i in new_members:
+                    print("Adding key: ", key)
                     self.controller.table_add(
                         "SFZSIngress.mc_table",
                         "SFZSIngress.multicast_to_group",
@@ -213,6 +212,7 @@ class Controller:
                         [],
                     )
                 elif i in old_members:
+                    print("Updating key: ", key)
                     self.controller.table_modify_match(
                         "SFZSIngress.mc_table",
                         "SFZSIngress.multicast_to_group",
