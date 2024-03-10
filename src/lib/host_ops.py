@@ -3,13 +3,9 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-# Run with `python3 | tee -a output_hname.txt`
-
-import argparse
 import os
 import random
 import sys
-import time
 
 import psutil
 from scapy.all import *
@@ -23,9 +19,14 @@ from lib.utils import *
 
 src_addr = None
 intf = None
+captures = []
 
 
 def get_intf():
+    """
+    Get network interface
+    """
+
     global intf
     if intf:
         return intf
@@ -44,10 +45,11 @@ def get_src_addr(intf=get_intf()):
     been recorded (needed for tracking
     packets)
     """
+
     global src_addr
     if not src_addr:
         try:
-            with open(f"outputs/addr_{intf.split('-')[0]}", "r") as f:
+            with open(f"../emulation/outputs/addr_{intf.split('-')[0]}", "r") as f:
                 src_addr = f.read()
         except:
             temp_src_addr = "ae:"
@@ -67,7 +69,7 @@ def test_bi(intf=get_intf()):
     """
 
     # make CEther frame with dest MAC set to
-    # special BARC address and etherType also
+    # NCB address and etherType
     # set to BARC identifier
     ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
@@ -84,8 +86,12 @@ def test_bi(intf=get_intf()):
 
 
 def test_bprs(intf=get_intf()):
+    """
+    Test BARC proposal to rack switch
+    """
+
     # make CEther frame with dest MAC set to
-    # special BARC address and etherType also
+    # NCB address and etherType
     # set to BARC identifier
     ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
@@ -107,7 +113,7 @@ def test_bpfs(intf=get_intf()):
     """
 
     # make CEther frame with dest MAC set to
-    # special BARC address and etherType also
+    # NCB address and etherType
     # set to BARC identifier
     ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
@@ -128,7 +134,9 @@ def test_bpss(intf=get_intf()):
     Test BARC proposal to spine switch
     """
 
-    # make BARC frame
+    # make CEther frame with dest MAC set to
+    # NCB address and etherType
+    # set to BARC identifier
     ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_BARC)
 
     # make BARC inquiry frame with the first
@@ -138,6 +146,30 @@ def test_bpss(intf=get_intf()):
     # compile and display complete frame
     frame = ether / barc
     print("\nSending CEther/BARC frame:")
+    frame.show()
+    # ls(frame)
+    sendp(frame, iface=intf)
+    print("\n")
+
+
+def test_core(ca, intf=get_intf()):
+    """
+    Test Collective Registration
+    """
+    # make CEther frame with NCB address as destination
+    # type as CORE type
+    ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_CORE)
+
+    # make CORE frame
+    core = CORE(
+        CA=[SPN_ID | 1, 0x01, 0x00, 0x00, 0x00, 0x01],
+        # CA=[int(f"0x{x}", 16) for x in ca.split(":")],
+        inport=int(get_src_addr().split(":")[3]),
+    )
+
+    # compile and display complete frame
+    frame = ether / core
+    print("\nSending CEther/CORE frame:")
     frame.show()
     # ls(frame)
     sendp(frame, iface=intf)
@@ -178,22 +210,6 @@ def test_multicast(dst, intf=get_intf()):
     print("\n")
 
 
-def test_mc_registration(intf=get_intf()):
-    ether = CEther(dst=xtos(NCB_DA), src=get_src_addr(), type=TYPE_CORE)
-    core = CORE(CA=[SPN_ID | 1, 0x01, 0x00, 0x00, 0x00, 0x01], inport=int(get_src_addr().split(":")[3]))
-
-    # compile and display complete frame
-    frame = ether / core
-    print("\nSending CEther/CORE frame:")
-    frame.show()
-    # ls(frame)
-    sendp(frame, iface=intf)
-    print("\n")
-
-
-captures = []
-
-
 def listen(intf=get_intf()):
     """
     Listen for incoming packets
@@ -230,25 +246,3 @@ def listen(intf=get_intf()):
     t.start()
 
     return t
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        prog="test.py", description="Run host traffic simulation"
-    )
-    parser.add_argument("interface", type=str)
-    args = parser.parse_args()
-
-    # start async sniffing
-    listen(args.interface)
-
-    # this timeout will need to be
-    # increased for larger k values
-    time.sleep(1)
-
-    # send BARC initilization frame
-    test_bi(args.interface)
-
-    # this timeout will need to be
-    # increased for larger k values
-    time.sleep(1)

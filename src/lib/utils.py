@@ -5,6 +5,7 @@
 import io
 from contextlib import redirect_stdout
 
+
 def xtos(x):
     """
     Convert 6-byte hex address to string
@@ -20,9 +21,21 @@ def xtos(x):
 
 
 def capture_stdout(func):
+    """
+    Decorator capture output written to
+    stdout from given function
+
+    Args:
+        func: Some function
+
+    Returns:
+        str: All output written to stdout
+    """
+
     def wrapper(*args, **kwargs):
         f = io.StringIO()
         with redirect_stdout(f):
             func(*args, **kwargs)
         return f.getvalue()
+
     return wrapper

@@ -10,11 +10,14 @@ import time
 sys.path.append(os.path.join(sys.path[0], ".."))
 
 from lib.fattree import FatTreeTopo
-from lib.multicast import setup_example, setup_mcast
+from lib.mc_examples import example_1
 
 K = 4
 DROP_PORT = 511
-CTRL_SESSION = CTRL_PORT = 510
+CTRL_SESSION = 510
+CTRL_PORT = K
+
+# generate runtime constants for p4
 with open("runtime.p4", "w") as f:
     f.write(
         f"""/*
@@ -27,15 +30,23 @@ with open("runtime.p4", "w") as f:
 
 const int TREE_K={bin(K)}; // {K}
 const int DROP_PORT = {bin(DROP_PORT)}; // {DROP_PORT}
+const int CTRL_PORT = {bin(CTRL_PORT)}; // {CTRL_PORT}
 const bit<32> CTRL_SESSION = {bin(CTRL_SESSION)}; // {CTRL_SESSION}
 """
     )
 
 # initialize network
-net = FatTreeTopo(loglevel="info")
+net = FatTreeTopo(
+    k=K,
+    p4src="switch.p4",
+    drop_port=DROP_PORT,
+    ctrl_port=CTRL_PORT,
+    p4rt=True,
+    loglevel="info",
+)
 
 # build k-ary fat-tree
-net.setup(src="switch.p4", k=K, ctrl_port=CTRL_PORT)
+net.setup()
 
 # enable logging
 net.enablePcapDumpAll()
@@ -45,26 +56,36 @@ net.enableLogAll()
 net.disableCli()
 net.startNetwork()
 
-# setup mcast groups and mirroring sessions
-setup_mcast(K, net, CTRL_PORT)
+print("Starting controllers on all nodes...")
+for stype in net.ft_switches:
+    for sname in net.ft_switches[stype]:
+        sobj = net.net.get(sname)
+        sobj.cmd(
+            f"nohup python3 -u ../lib/controller.py --k {K} --sname {sname} --ctr-session {CTRL_SESSION} > outputs/{sname}_c.txt &"
+        )
+
+# this timeout will need to be
+# increased for larger k values
+time.sleep(20)
 
 # setup example entries mcast table
-setup_example(K, net)
+print("Setting up multicast example 1...")
+# example_1(K, net)
+
+# this timeout will need to be
+# increased for larger k values
+# time.sleep(20)
 
 threads = []
 for hname in net.ft_hosts:
     hobj = net.net.get(hname)
     hobj.cmd(
-        f"nohup python3 -u test.py {hobj.intf().name} > outputs/output_{hname}.txt &"
+        f"nohup python3 -u run_barc.py {hobj.intf().name} > outputs/{hname}_s.txt &"
     )
 
 # this timeout will need to be
 # increased for larger k values
 time.sleep(10)
-
-# start the controller
-ctrl = net.net.get(net.ctrl)
-ctrl.cmd(f"nohup python3 -u ../lib/controller.py > outputs/output_ctrl.txt &")
 
 net.start_net_cli()
 

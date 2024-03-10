@@ -1,7 +1,9 @@
 outputs/
+log/
+pcap/
+*.p4i
 runtime.p4
-switch.json
-switch.p4i
 switch_p4rt.txt
+switch.json
 topology.json
-preprocessed_logs.json
+misc/preprocessed_logs.json

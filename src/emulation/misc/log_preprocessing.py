@@ -15,7 +15,7 @@ def convert_time(timestamp):
 
 
 logs = {}
-logdir = os.path.join(sys.path[0], "log")
+logdir = os.path.join(sys.path[0], "../log")
 
 for filename in os.listdir(logdir):
     with open(os.path.join(logdir, filename), "r") as f:
