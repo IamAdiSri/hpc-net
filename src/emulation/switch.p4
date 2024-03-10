@@ -17,6 +17,7 @@
 
 #include "../lib/parser.p4"
 #include "../lib/ingress.p4"
+#include "../lib/egress.p4"
 #include "../lib/deparser.p4"
 
 /*************************************************************************
@@ -52,6 +53,7 @@ V1Switch(
     MyVerifyChecksum(),
     SFZSIngress(),
     MyEgress(),
+    // SFZSEgress(),
     MyComputeChecksum(),
     SFZSDeparser()
 ) main;

@@ -17,12 +17,19 @@ parser SFZSParser(packet_in packet, out headers hdr, inout metadata_t meta, inou
         packet.extract(hdr.ethernet);
         transition select(hdr.ethernet.etherType) {
             TYPE_BARC: parse_barc;  // BARC headers
+            TYPE_CORE: parse_core;  // CORE headers
             default: accept;
         }
     }
 
     state parse_barc {
-        packet.extract(hdr.barc);
+        packet.extract(hdr.proto.barc);
+        transition accept;
+    }
+
+    
+    state parse_core {
+        packet.extract(hdr.proto.core);
         transition accept;
     }
 }

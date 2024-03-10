@@ -7,33 +7,59 @@ from p4utils.mininetlib.network_API import NetworkAPI
 
 
 class FatTreeTopo(NetworkAPI):
-    def __init__(self, loglevel="info"):
+    """
+    Setup a FatTree Mininet Topology
+    with P4 switches using a custom program.
+
+    Args:
+        k: Size of FatTree
+        p4src: Location of P4 source file
+        drop_port: Switch port to send dropped packets to
+        ctrl_port: Switch port to forward packets to controller
+        p4rt: Use P4Runtime if True
+        loglevel: Set logging level
+
+    Returns:
+        None
+    """
+
+    def __init__(
+        self, k, p4src, drop_port=511, ctrl_port=None, p4rt=False, loglevel="info"
+    ):
         super().__init__()
+        self.k = k
+        self.p4src = p4src
+        self.drop_port = drop_port
+        self.ctrl_port = ctrl_port
+        self.p4rt = p4rt
+
         self.setLogLevel(loglevel)
+        self.setCompiler(p4rt=p4rt)
 
-    def setup(self, src, k=4):
-        """
-        Initializes a FatTree Mininet Topology
-        with P4 switches using a custom program.
-
-        Args:
-            src : Location of P4 source file
-            k   : Size of FatTree
-
-        Returns:
-            None
-        """
-
+    def setup(self):
         def flip(p):
-            return (p + k // 2) % k
+            return (p + self.k // 2) % self.k
 
-        npod = k  # number of pods
-        nspn = k // 2  # number of spines
-        nspns = (k // 2) ** 2  # number of spine switches
+        if not self.p4rt:
+            addSwitch = lambda s: self.addP4Switch(
+                s,
+                drop_port=self.drop_port,
+            )
+        else:
+            addSwitch = lambda s: self.addP4RuntimeSwitch(
+                s,
+                drop_port=self.drop_port,
+                # cpu_port=True,
+                # cpu_port_num=self.ctrl_port,
+            )
+
+        npod = self.k  # number of pods
+        nspn = self.k // 2  # number of spines
+        nspns = (self.k // 2) ** 2  # number of spine switches
         nspnp = nspns // nspn  # number of spine switches per spine
-        nfabs = nrcks = (k**2) // 2  # number of fabric and rack switches
+        nfabs = nrcks = (self.k**2) // 2  # number of fabric and rack switches
         nfabp = nrckp = nfabs // npod  # number of frabric and rack switches per pod
-        nhsts = (k**3) // 4  # number of hosts
+        nhsts = (self.k**3) // 4  # number of hosts
         nhstp = nhsts // nrcks  # number of hosts per rack switch
 
         # spine switches
@@ -41,7 +67,7 @@ class FatTreeTopo(NetworkAPI):
         spn_switches = []
         for ssid in range(nspnp):
             for sid in range(nspn):
-                s = self.addP4Switch(f"spn_{ssid}_{sid}")
+                s = addSwitch(f"s_{ssid}_{sid}")
                 spn_mat[sid][ssid] = s
                 spn_switches.append(s)
 
@@ -50,7 +76,7 @@ class FatTreeTopo(NetworkAPI):
         fab_switches = []
         for pid in range(npod):
             for sid in range(nspn):
-                f = self.addP4Switch(f"fab_{pid}_{sid}")
+                f = addSwitch(f"f_{pid}_{sid}")
                 fab_mat[pid][sid] = f
                 fab_switches.append(f)
 
@@ -59,12 +85,16 @@ class FatTreeTopo(NetworkAPI):
         rck_switches = []
         for pid in range(npod):
             for rid in range(nrckp):
-                r = self.addP4Switch(f"rck_{pid}_{rid}")
+                r = addSwitch(f"r_{pid}_{rid}")
                 rck_mat[pid][rid] = r
                 rck_switches.append(r)
 
         # deploy switch program to all switches
-        self.setP4SourceAll(src)
+        self.setP4SourceAll(self.p4src)
+
+        # enable CPU port on all switches
+        if self.ctrl_port:
+            self.enableCpuPortAll()
 
         # hosts
         hst_mat = [[[None] * nhstp for _ in range(nrckp)] for _ in range(npod)]
@@ -72,7 +102,7 @@ class FatTreeTopo(NetworkAPI):
         for pid in range(npod):
             for rid in range(nrckp):
                 for hid in range(nhstp):
-                    h = self.addHost(f"hst_{pid}_{rid}_{hid}")
+                    h = self.addHost(f"h_{pid}_{rid}_{hid}")
                     hst_mat[pid][rid][hid] = h
                     hosts.append(h)
 
@@ -96,16 +126,15 @@ class FatTreeTopo(NetworkAPI):
         # connect spine switches to fabric switches
         for s in spn_switches:
             ssid, sid = (int(n) for n in s.split("_")[1:])
-            # print(sid, ssid, [f[sid] for f in fab_mat])
             fs = [f[sid] for f in fab_mat]
             for f in fs:
                 fpid, fsid = (int(n) for n in f.split("_")[1:])
                 port = ssid
                 self.addLink(s, f)
-                if fpid < k // 2:
-                    self.setIntfPort(s, f, fpid % (k // 2))
+                if fpid < self.k // 2:
+                    self.setIntfPort(s, f, fpid % (self.k // 2))
                 else:
-                    self.setIntfPort(s, f, flip(fpid % (k // 2)))
+                    self.setIntfPort(s, f, flip(fpid % (self.k // 2)))
                 self.setIntfPort(f, s, flip(port))
 
         self.ft_switches = {
