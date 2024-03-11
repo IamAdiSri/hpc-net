@@ -10,7 +10,7 @@ import time
 sys.path.append(os.path.join(sys.path[0], ".."))
 
 from lib.fattree import FatTreeTopo
-from lib.mc_examples import example_1
+from lib.mc_examples import example_1, example_2
 
 K = 4
 DROP_PORT = 511
@@ -89,6 +89,16 @@ for hname in net.ft_hosts:
 # this timeout will need to be
 # increased for larger k values
 time.sleep(10)
+
+print("Setting up multicast example 1...")
+example_1(net)
+
+print("Setting up multicast example 2...")
+example_2(net)
+
+# this timeout will need to be
+# increased for larger k values
+time.sleep(3)
 
 net.start_net_cli()
 

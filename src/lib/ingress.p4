@@ -193,9 +193,6 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     }
 
     action multicast_registration(bit<8> switchPort) {
-        // modify packet
-        hdr.proto.core.inport = ingressPort;
-
         // send packet to switch
         standard_metadata.egress_spec = (bit<9>) switchPort;
 
@@ -337,7 +334,7 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                 if (hdr.proto.core.subtype == CORE_S) { // collective registration
 
                     if (!placeholder_table.apply().hit) { // match not found
-                                                          // add (ca, inport)
+                                                          // add (ca, ingress port)
                         
                         // load switch address
                         self.read(self_0, (bit<32>) 0);
@@ -353,9 +350,6 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
                         else if (self_0 == SPN_ID) { // spine switch
                             // this doesn't work for some reason on spine switches
                             // multicast_registration(DROP_PORT);
-
-                            // modify packet
-                            hdr.proto.core.inport = ingressPort;
 
                             // send packet to switch
                             standard_metadata.egress_spec = (bit<9>) CTRL_PORT;

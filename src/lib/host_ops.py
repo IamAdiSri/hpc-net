@@ -162,9 +162,7 @@ def test_core(ca, intf=get_intf()):
 
     # make CORE frame
     core = CORE(
-        CA=[SPN_ID | 1, 0x01, 0x00, 0x00, 0x00, 0x01],
-        # CA=[int(f"0x{x}", 16) for x in ca.split(":")],
-        inport=int(get_src_addr().split(":")[3]),
+        CA=[int(f"0x{x}", 16) for x in ca.split(":")],
     )
 
     # compile and display complete frame

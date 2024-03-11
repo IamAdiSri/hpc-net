@@ -111,16 +111,28 @@ class Controller:
 
         self.controller.mirroring_add(self.ctr_session, self.cpu_port)
 
-    def core_handler(self, ca, inport):
+    def core_handler(self, pkt):
         """
         Add/Update rules on receiving a CORE packet
 
         Args:
-            ca: Collective address
-            inport: IngressPort on which
-                    the packet was received at switch
+            pkt: Received packet
         """
+        # parse CA from packet
+        ca = pkt.CA
         ca = [hex(f) for f in ca]
+
+        # parse ingress port from packet
+        src = pkt.src.split(":")
+        if self.sname[0] == "r":  # rack switch
+            inport = int(src[3], 16)
+        elif self.sname[0] == "f":  # fabric switch
+            inport = int(src[2], 16)
+        elif self.sname[0] == "s":  # spine switch
+            inport = int(src[1], 16)
+        else:
+            print("core_handler: Unknown switch type")
+            return
 
         @capture_stdout
         def get_entry(key):
@@ -237,7 +249,7 @@ class Controller:
         pkt.show()
 
         if int("".join(pkt.dst.split(":")), 16) == NCB_DA and pkt.type == TYPE_CORE:
-            self.core_handler(pkt.CA, pkt.inport)
+            self.core_handler(pkt)
 
     def start(self):
         """
