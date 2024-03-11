@@ -1,3 +1,12 @@
+/*
+ * This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at https://mozilla.org/MPL/2.0/.
+ */
+
+
+/* -*- P4_16 -*- */
+
 control SFZSEgress(inout headers hdr, inout metadata_t meta, inout standard_metadata_t standard_metadata) {
     // switch address placeholders
     // bit<8> self_0;        // switch type
