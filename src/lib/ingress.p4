@@ -234,8 +234,12 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
     }
     
     apply {
+        
+        log_msg("Source Address: {}:{}:{}:{}:{}:{}", hdr.ethernet.srcAddr);
 
         if (hdr.ethernet.dstAddr.f0 == HST_ID) { // unicast
+
+            log_msg("Unicast DA: {}:{}:{}:{}:{}:{}", hdr.ethernet.dstAddr);
 
             // load switch address
             self.read(self_0, (bit<32>) 0);
@@ -277,6 +281,8 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
         }
         else if (hdr.ethernet.dstAddr.f0 == (SPN_ID | 1)) { // multicast forwarding
 
+            log_msg("Multicast DA: {}:{}:{}:{}:{}:{}", hdr.ethernet.dstAddr);
+
             if (!mc_table.apply().hit) { // no match found
                 log_msg("WARNING: Did not find a match for the multicast address; packet dropped.");
                 standard_metadata.egress_spec = DROP_PORT;
@@ -285,6 +291,8 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
         else if (hdr.ethernet.dstAddr == NCB_DA) { // special multicast
 
             if (hdr.ethernet.etherType == TYPE_BARC) { // BARC
+
+                log_msg("BARC DA: {}:{}:{}:{}:{}:{}", hdr.ethernet.dstAddr);
 
                 if (hdr.proto.barc.S == BARC_I) { // BARC Inquiry
                     barc_i_rs();
@@ -333,6 +341,8 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
 
                 if (hdr.proto.core.subtype == CORE_S) { // collective registration
 
+                    log_msg("CoRe CA: {}:{}:{}:{}:{}:{}", hdr.proto.core.CA);
+
                     if (!placeholder_table.apply().hit) { // match not found
                                                           // add (ca, ingress port)
                         
@@ -378,8 +388,5 @@ control SFZSIngress(inout headers hdr, inout metadata_t meta, inout standard_met
             log_msg("ERROR: Unknown address; packet dropped");
             standard_metadata.egress_spec = DROP_PORT;
         }
-
-        log_msg("Source Address: {}:{}:{}:{}:{}:{}", hdr.ethernet.srcAddr);
-        log_msg("Destination Address: {}:{}:{}:{}:{}:{}", hdr.ethernet.dstAddr);
     }
 }
