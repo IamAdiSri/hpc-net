@@ -58,7 +58,6 @@ class CORE(Packet):
         BitField("subtype", CORE_S, 16),
         FieldListField("CA", [], XByteField("", 0x00), count_from=lambda pkt: 6),
         # TODO: FCS field
-        BitField("inport", 0x00, 8),
     ]
 
 

@@ -10,7 +10,7 @@ import time
 
 sys.path.append(os.path.join(sys.path[0], ".."))
 
-from lib.host_ops import *
+from lib.host_ops import listen, test_bi
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
